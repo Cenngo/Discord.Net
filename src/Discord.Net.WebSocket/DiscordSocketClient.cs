@@ -1860,6 +1860,53 @@ namespace Discord.WebSocket
                                 }
                                 break;
 
+                            //Interactions
+                            case "INTERACTION_CREATE":
+                                {
+                                    await _gatewayLogger.DebugAsync("Received Dispatch (INTERACTION_CREATE)").ConfigureAwait(false);
+                                    var data = ( payload as JToken ).ToObject<Interaction>(_serializer);
+
+                                    if (data != null)
+                                        await ApiClient.CreateInteractionResponse(data.Id, data.Token,
+                                            new API.Rest.CreateInteractionResponseParams(InteractionCallbackType.DeferredChannelMessageWithSource)
+                                            {
+                                                Data = new InteractionApplicationCommandCallbackData()
+                                                {
+                                                    Content = "yarak"
+                                                }
+                                            });
+
+                                    ISocketMessageChannel channel = null;
+
+                                    if(data.ChannelId.IsSpecified)
+                                        channel = await GetChannelAsync(data.ChannelId.Value) as ISocketMessageChannel;
+
+                                    SocketUser user = null;
+
+                                    if (data.Member.IsSpecified) // Assume Guild
+                                    {
+                                        var guild = ( channel as SocketGuildChannel )?.Guild;
+
+                                        if (guild != null)
+                                            user = guild.AddOrUpdateUser(data.Member.Value);
+                                    }
+                                    else if (data.User.IsSpecified) // Assume DM
+                                    {
+                                        if (channel is SocketGroupChannel groupChannel)
+                                            user = groupChannel.GetOrAddUser(data.User.Value);
+                                        else
+                                            user = ( channel as SocketChannel ).GetUser(data.User.Value.Id);
+                                    }
+                                    else
+                                    {
+                                        await UnknownChannelUserAsync(type, data.User.Value.Id, channel.Id).ConfigureAwait(false);
+                                        return;
+                                    }
+                                    var interaction = SocketInteraction.Create(this, State, user, channel, data);
+                                    await TimedInvokeAsync(_interactionReceivedEvent, nameof(InteractionRecieved), interaction).ConfigureAwait(false);
+                                }
+                                break;
+
                             //Ignored (User only)
                             case "CHANNEL_PINS_ACK":
                                 await _gatewayLogger.DebugAsync("Ignored Dispatch (CHANNEL_PINS_ACK)").ConfigureAwait(false);
@@ -2162,6 +2209,11 @@ namespace Discord.WebSocket
         {
             string details = $"{evnt} Guild={guildId}";
             await _gatewayLogger.DebugAsync($"Unsynced Guild ({details}).").ConfigureAwait(false);
+        }
+
+        private async Task UnknownInteractionSourceAsync(string evnt)
+        {
+            await _gatewayLogger.WarningAsync($"Interaction recieved from unknown source ({evnt}).").ConfigureAwait(false);
         }
 
         internal int GetAudioId() => _nextAudioId++;

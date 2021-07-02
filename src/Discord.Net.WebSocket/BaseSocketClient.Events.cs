@@ -1,3 +1,4 @@
+using Discord.API;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -431,5 +432,12 @@ namespace Discord.WebSocket
             remove { _inviteDeletedEvent.Remove(value); }
         }
         internal readonly AsyncEvent<Func<SocketGuildChannel, string, Task>> _inviteDeletedEvent = new AsyncEvent<Func<SocketGuildChannel, string, Task>>();
+
+        public event Func<SocketInteraction, Task> InteractionRecieved
+        {
+            add { _interactionReceivedEvent.Add(value); }
+            remove { _interactionReceivedEvent.Remove(value); }
+        }
+        internal readonly AsyncEvent<Func<SocketInteraction, Task>> _interactionReceivedEvent = new AsyncEvent<Func<SocketInteraction, Task>>();
     }
 }
