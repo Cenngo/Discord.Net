@@ -9,9 +9,6 @@ namespace Discord
         IMessageChannel Channel { get; }
         IDiscordInteractionToken Token { get; }
         int Version { get; }
-
-        Task AcknowledgeAsync ( );
-        Task SendFollowupAsync ( );
-        Task SendResponseAsync ( );
+        internal ulong ApplicationId { get; }
     }
 }

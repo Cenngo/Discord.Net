@@ -47,8 +47,8 @@ namespace Discord.SlashCommands
 
         private bool CompareCommands (string first, string second)
         {
-            var dissectedFirst = first.Split(Delimiters);
-            var dissectedSecond = second.Split(Delimiters);
+            var dissectedFirst = first.Split(Delimiters, StringSplitOptions.RemoveEmptyEntries);
+            var dissectedSecond = second.Split(Delimiters, StringSplitOptions.RemoveEmptyEntries);
 
             if (dissectedFirst.Length != dissectedSecond.Length)
                 return false;

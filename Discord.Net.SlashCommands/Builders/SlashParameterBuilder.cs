@@ -20,6 +20,8 @@ namespace Discord.SlashCommands.Builders
         internal SlashParameterBuilder (SlashCommandBuilder command)
         {
             Command = command;
+            _choices = new List<ParameterChoice>();
+            _attributes = new List<Attribute>();
         }
 
         internal SlashParameterBuilder (SlashCommandBuilder command, string name, Type type) : this(command)

@@ -8,11 +8,11 @@ namespace Discord.WebSocket
 
         public string Token { get; }
         public DateTimeOffset CreatedAt { get; }
-        public bool IsValid => CreatedAt + TTL < DateTimeOffset.Now;
+        public bool IsValid => CreatedAt + TTL > DateTimeOffset.Now;
 
         internal SocketInteractionToken (string token, ulong snowflake )
         {
-            Token = Token;
+            Token = token;
             CreatedAt = SnowflakeUtils.FromSnowflake(snowflake);
         }
 

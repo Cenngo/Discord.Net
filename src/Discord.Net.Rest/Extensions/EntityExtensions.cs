@@ -78,6 +78,15 @@ namespace Discord.Rest
                 RepliedUser = entity.MentionRepliedUser ?? Optional.Create<bool>(),
             };
         }
+        public static AllowedMentions ToEntity(this API.AllowedMentions model)
+        {
+            return new AllowedMentions()
+            {
+                MentionRepliedUser = model.RepliedUser.IsSpecified ? model.RepliedUser.Value : null,
+                RoleIds = model.Roles.IsSpecified ? model.Roles.Value.ToList() : null,
+                UserIds = model.Users.IsSpecified ? model.Users.Value.ToList() : null,
+            };
+        }
         public static API.MessageReference ToModel(this MessageReference entity)
         {
             return new API.MessageReference()
@@ -167,6 +176,92 @@ namespace Discord.Rest
         public static Overwrite ToEntity(this API.Overwrite model)
         {
             return new Overwrite(model.TargetId, model.TargetType, new OverwritePermissions(model.Allow, model.Deny));
+        }
+
+        public static InteractionResponse ToEntity(this API.InteractionResponse response)
+        {
+            if (!response.Data.IsSpecified)
+                return new InteractionResponse(response.Type);
+
+            var data = response.Data.Value;
+
+            bool isTTS = false;
+            AllowedMentions allowedMentions = null;
+            Embed[] embeds = null;
+            string content = null;
+            MessageComponent[] messageComponents = null;
+
+            if (data.Content.IsSpecified)
+                content = data.Content.Value;
+            if (data.TTS.IsSpecified)
+                isTTS = data.TTS.Value;
+            if (data.Embeds.IsSpecified)
+                embeds = data.Embeds.Value.Select(x => x.ToEntity()).ToArray();
+            if (data.AllowedMentions.IsSpecified)
+                allowedMentions = data.AllowedMentions.Value.ToEntity();
+            if (data.Components.IsSpecified)
+                messageComponents = data.Components.Value.Select(x => x.ToEntity()).ToArray();
+
+            return new InteractionResponse(response.Type)
+            {
+                IsTTS = isTTS,
+                Content = content,
+                Embeds = embeds,
+                AllowedMentions = allowedMentions,
+                MessageComponents = messageComponents
+            };
+        }
+
+        public static API.ApplicationCommandOption ToModel (this IApplicationCommandOption entity)
+        {
+            return new API.ApplicationCommandOption()
+            {
+                Name = entity.Name,
+                Description = entity.Description,
+                Type = entity.OptionType,
+                Required = entity.IsRequired,
+                Options = entity.Options?.Select(x => x?.ToModel()).ToArray(),
+                Choices = entity.Choices?.Select(x => new API.ApplicationCommandOptionChoice()
+                {
+                    Name = x.Key,
+                    Value = x.Value
+                }).ToArray()
+            };
+        }
+
+        public static API.ApplicationCommand ToModel(this IApplicationCommand entity)
+        {
+            var model = new API.ApplicationCommand
+            {
+                Name = entity.Name,
+                Description = entity.Description,
+                Id = entity.Id,
+                ApplicationId = entity.ApplicationId,
+                DefaultPermission = entity.DefaultPermission,
+                Options = entity.Options.Select(x => x.ToModel()).ToArray()
+            };
+
+            if (entity.Guild != null)
+                model.GuildId = entity.Guild.Id;
+
+            return model;
+        }
+
+        //Implement
+        public static API.MessageComponent ToModel(this MessageComponent entity)
+        {
+            return new API.MessageComponent()
+            {
+                
+            };
+        }
+
+        public static MessageComponent ToEntity(this API.MessageComponent component)
+        {
+            return new MessageComponent()
+            {
+
+            };
         }
     }
 }

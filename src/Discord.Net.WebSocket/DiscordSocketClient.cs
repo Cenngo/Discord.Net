@@ -71,6 +71,7 @@ namespace Discord.WebSocket
         internal WebSocketProvider WebSocketProvider { get; private set; }
         internal bool AlwaysDownloadUsers { get; private set; }
         internal int? HandlerTimeout { get; private set; }
+        internal bool AlwaysAcknowledgeInteractions { get; private set; }
 
         internal new DiscordSocketApiClient ApiClient => base.ApiClient as DiscordSocketApiClient;
         /// <inheritdoc />
@@ -131,6 +132,7 @@ namespace Discord.WebSocket
             WebSocketProvider = config.WebSocketProvider;
             AlwaysDownloadUsers = config.AlwaysDownloadUsers;
             HandlerTimeout = config.HandlerTimeout;
+            AlwaysAcknowledgeInteractions = config.AlwaysAcknowledgeInteractions;
             State = new ClientState(0, 0);
             Rest = new DiscordSocketRestClient(config, ApiClient);
             _heartbeatTimes = new ConcurrentQueue<long>();
@@ -1866,15 +1868,37 @@ namespace Discord.WebSocket
                                     await _gatewayLogger.DebugAsync("Received Dispatch (INTERACTION_CREATE)").ConfigureAwait(false);
                                     var data = ( payload as JToken ).ToObject<Interaction>(_serializer);
 
-                                    if (data != null)
-                                        await ApiClient.CreateInteractionResponse(data.Id, data.Token,
-                                            new API.Rest.CreateInteractionResponseParams(InteractionCallbackType.DeferredChannelMessageWithSource)
-                                            {
-                                                Data = new InteractionApplicationCommandCallbackData()
+                                    if (data != null && AlwaysAcknowledgeInteractions) // Acknowledge the interaction
+                                    {
+                                        API.Rest.CreateInteractionResponseParams callback;
+                                        switch (data.Type)
+                                        {
+                                            
+                                            case InteractionType.Ping:
                                                 {
-                                                    Content = "yarak"
+                                                    callback = new API.Rest.CreateInteractionResponseParams(InteractionCallbackType.Pong);
                                                 }
-                                            });
+                                                break;
+                                            case InteractionType.ApplicationCommand:
+                                                {
+                                                    callback = new API.Rest.CreateInteractionResponseParams(InteractionCallbackType.DeferredChannelMessageWithSource);
+                                                }
+                                                break;
+                                            case InteractionType.MessageComponent:
+                                                {
+                                                    callback = new API.Rest.CreateInteractionResponseParams(InteractionCallbackType.DeferredUpdateMessage);
+                                                }
+                                                break;
+                                            default:
+                                                callback = null;
+                                                break;
+                                        }
+                                        if (callback != null)
+                                            await ApiClient.CreateInteractionResponse(data.Id, data.Token, callback);
+                                        else
+                                            await _gatewayLogger.DebugAsync("Unknown interaction type, skipping Auto-Ack");
+                                    }
+                                        
 
                                     ISocketMessageChannel channel = null;
 

@@ -1,0 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Discord
+{
+    public interface ISlashCommandContext
+    {
+        IDiscordClient Client { get; }
+        IGuild Guild { get; }
+        IMessageChannel Channel { get; }
+        IUser User { get; }
+        IDiscordInteraction Interaction { get; }
+    }
+}

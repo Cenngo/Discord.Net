@@ -9,19 +9,19 @@ using Newtonsoft.Json;
 
 namespace Discord.SlashCommands
 {
-    internal static class SlashCommandHelper
+    internal static class SlashCommandRestUtil
     {
-        public static ApplicationCommandOption ParseApplicationCommandOption (this SlashParameterInfo parameterInfo)
+        public static API.ApplicationCommandOption ParseApplicationCommandOption (this SlashParameterInfo parameterInfo)
         {
-            var option = new ApplicationCommandOption
+            var option = new API.ApplicationCommandOption
             {
-                Name = parameterInfo.Name,
-                Description = parameterInfo.Description,
+                Name = parameterInfo.Name.ToLower(),
+                Description = parameterInfo.Description.ToLower(),
                 Required = parameterInfo.IsRequired,
                 Type = parameterInfo.DiscordOptionType,
                 Choices = parameterInfo.Choices?.Select(x => new ApplicationCommandOptionChoice
                 {
-                    Name = x.Name,
+                    Name = x.Name.ToLower(),
                     Value = x.Value
                 }).ToArray(),
                 Options = null
@@ -53,7 +53,7 @@ namespace Discord.SlashCommands
             return true;
         }
 
-        public static bool TryParseApplicationCommandOption (this SlashCommandInfo commandInfo, out ApplicationCommandOption commandOption)
+        public static bool TryParseApplicationCommandOption (this SlashCommandInfo commandInfo, out API.ApplicationCommandOption commandOption)
         {
             if (commandInfo.Module == null)
             {
@@ -65,12 +65,12 @@ namespace Discord.SlashCommands
             return true;
         }
 
-        public static ApplicationCommandOption ParseApplicationCommandOption (this SlashCommandInfo commandInfo)
+        public static API.ApplicationCommandOption ParseApplicationCommandOption (this SlashCommandInfo commandInfo)
         {
-            var option = new ApplicationCommandOption
+            var option = new API.ApplicationCommandOption
             {
-                Name = commandInfo.Name,
-                Description = commandInfo.Description,
+                Name = commandInfo.Name.ToLower(),
+                Description = commandInfo.Description.ToLower(),
                 Type = ApplicationCommandOptionType.SubCommand,
                 Options = commandInfo.Parameters.Select(x => x.ParseApplicationCommandOption()).ToArray(),
                 Choices = null,
@@ -82,12 +82,12 @@ namespace Discord.SlashCommands
 
             return option;
         }
-        public static IEnumerable<ApplicationCommandOption> GroupParseApplicationCommandOption (this IEnumerable<SlashCommandInfo> commands)
+        public static IEnumerable<API.ApplicationCommandOption> GroupParseApplicationCommandOption (this IEnumerable<SlashCommandInfo> commands)
         {
             var standalones = commands.Where(x => x.Group == null);
             var subCommands = commands.Where(x => x.Group != null);
 
-            var result = new List<ApplicationCommandOption>();
+            var result = new List<API.ApplicationCommandOption>();
 
 
             foreach (var standalone in standalones)
@@ -99,10 +99,10 @@ namespace Discord.SlashCommands
             {
                 var description = group.First(x => !string.IsNullOrEmpty(x.Group.Description)).Description;
 
-                var current = new ApplicationCommandOption()
+                var current = new API.ApplicationCommandOption()
                 {
-                    Name = group.Key,
-                    Description = description,
+                    Name = group.Key.ToLower(),
+                    Description = description.ToLower(),
                     Type = ApplicationCommandOptionType.SubCommandGroup,
                     Options = group.Select(x => x.ParseApplicationCommandOption()).ToArray(),
                     Choices = null,
@@ -158,15 +158,7 @@ namespace Discord.SlashCommands
                 return false;
             }
 
-            var options = new List<ApplicationCommandOption>();
-
-            //foreach (SlashModuleInfo subModule in moduleInfo.SubModules)
-            //    if (subModule.TryParseApplicationCommandOption(out var parsed))
-            //        options.Add(parsed);
-
-            //foreach (SlashCommandInfo command in moduleInfo.Commands)
-            //    if (command.TryParseApplicationCommandOption(out var parsed))
-            //        options.Add(parsed);
+            var options = new List<API.ApplicationCommandOption>();
 
             options.AddRange(moduleInfo.Commands.GroupParseApplicationCommandOption().ToArray());
 

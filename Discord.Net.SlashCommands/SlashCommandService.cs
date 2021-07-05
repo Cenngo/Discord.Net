@@ -28,16 +28,17 @@ namespace Discord.SlashCommands
         private readonly SlashCommandMap _commandMap;
         private readonly HashSet<SlashModuleInfo> _moduleDefs;
         private readonly SemaphoreSlim _lock;
+        private readonly ulong _applicationId;
         internal readonly Logger _cmdLogger;
         internal readonly LogManager _logManager;
 
         public IReadOnlyList<SlashModuleInfo> Modules => _moduleDefs.ToList();
         public IReadOnlyList<SlashCommandInfo> Commands => _moduleDefs.SelectMany(x => x.Commands).ToList();
-        public IDiscordClient Client { get; }
+        public BaseSocketClient Client { get; }
 
-        public SlashCommandService (IDiscordClient discord) : this(discord, new SlashCommandServiceConfig()) { }
+        public SlashCommandService (BaseSocketClient discord) : this(discord, new SlashCommandServiceConfig()) { }
 
-        public SlashCommandService(IDiscordClient discord, SlashCommandServiceConfig config)
+        public SlashCommandService(BaseSocketClient discord, SlashCommandServiceConfig config)
         {
             _lock = new SemaphoreSlim(1, 1);
             _typedModuleDefs = new ConcurrentDictionary<Type, SlashModuleInfo>();
@@ -50,6 +51,7 @@ namespace Discord.SlashCommands
             _commandMap = new SlashCommandMap(this);
 
             Client = discord;
+            _applicationId = Client.GetApplicationInfoAsync().GetAwaiter().GetResult().Id;
         }
 
         public async Task<IEnumerable<SlashModuleInfo>> AddModules(Assembly assembly, IServiceProvider services)
@@ -76,11 +78,9 @@ namespace Discord.SlashCommands
             }
         }
 
-        public async Task SyncCommands ( )
+        public async Task SyncCommands ( IGuild guild = null )
         {
             DiscordRestApiClient restClient;
-            //ulong applicationId = ( await Client.GetApplicationInfoAsync() ).Id;
-            ulong applicationId = 666632416554909706;
 
             if (Client is DiscordSocketClient socketClient)
                 restClient = socketClient.ApiClient;
@@ -105,14 +105,27 @@ namespace Discord.SlashCommands
                 }
             }
 
-            foreach(var args in creationParams)
+            var existing = await Rest.SlashCommandHelper.GetApplicationCommands(Client, _applicationId, guild, null);
+
+            var missing = existing.Where(x => creationParams.Any(y => y.Name == x.Name));
+
+            foreach (var command in missing)
             {
-                var json = JsonConvert.SerializeObject(args, Formatting.Indented, new JsonSerializerSettings()
-                {
-                    PreserveReferencesHandling = PreserveReferencesHandling.All,
-                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize
-                });
-                await restClient.CreateGuildApplicationCommand(applicationId, 656609553437163551, args);
+                await Rest.SlashCommandHelper.DeleteApplicationCommand(Client, _applicationId, command.Id, guild, null).ConfigureAwait(false);
+                existing.ToList().Remove(command);
+            }
+
+            foreach (var args in creationParams)
+            {
+                ApplicationCommand result;
+
+                if (guild != null)
+                    result = await restClient.CreateGuildApplicationCommand(_applicationId, guild.Id, args).ConfigureAwait(false);
+                else
+                    result = await restClient.CreateGlobalApplicationCommand(_applicationId, args).ConfigureAwait(false);
+
+                if (result == null)
+                    await _cmdLogger.WarningAsync($"Command could not be registered ({args.Name})").ConfigureAwait(false);
             }
         }
 

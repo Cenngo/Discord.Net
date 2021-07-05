@@ -70,7 +70,7 @@ namespace Discord.SlashCommands.Builders
             var attributes = typeInfo.GetCustomAttributes();
             builder.TypeInfo = typeInfo;
             builder.Name = typeInfo.Name;
-            builder.Description = " ";
+            builder.Description = typeInfo.Name;
 
             foreach(var attribute in attributes)
             {
@@ -108,7 +108,7 @@ namespace Discord.SlashCommands.Builders
             var attributes = methodInfo.GetCustomAttributes();
 
             builder.Name = methodInfo.Name;
-            builder.Description = " ";
+            builder.Description = methodInfo.Name;
 
             foreach(var attribute in attributes)
             {
@@ -180,7 +180,7 @@ namespace Discord.SlashCommands.Builders
             var paramType = paramInfo.ParameterType;
 
             builder.Name = paramInfo.Name;
-            builder.Description = " ";
+            builder.Description = paramInfo.Name;
             builder.IsRequired = !paramInfo.IsOptional;
             builder.DefaultValue = paramInfo.DefaultValue;
             builder.ParameterType = paramType;

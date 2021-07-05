@@ -42,7 +42,7 @@ namespace Discord.WebSocket
                     if (type == ApplicationCommandOptionType.SubCommand || type == ApplicationCommandOptionType.SubCommandGroup)
                     {
                         command += commandDelimiter + option.Name;
-                        children = option.Options.Value;
+                        children = option.Options.IsSpecified ? option.Options.Value : null;
                     }
                     else
                     {

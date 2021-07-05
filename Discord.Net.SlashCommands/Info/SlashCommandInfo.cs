@@ -12,7 +12,6 @@ namespace Discord.SlashCommands
 {
     public class SlashCommandInfo
     {
-        private readonly MethodInfo _methodInfo;
         private readonly Func<ISlashCommandContext, object[], IServiceProvider, SlashCommandInfo, Task> _action;
 
         public SlashCommandService CommandService { get; }
@@ -100,10 +99,15 @@ namespace Discord.SlashCommands
 
             foreach(var parameter in paramList)
             {
-                var arg = argList.First(x => x.Name == parameter.Name);
+                var arg = argList.FirstOrDefault(x => string.Equals(x.Name, parameter.Name, StringComparison.OrdinalIgnoreCase));
 
-                if (arg == null && parameter.IsRequired)
-                    throw new InvalidOperationException("Command was invoked with too few parameters");
+                if(arg == null || arg == default)
+                {
+                    if (parameter.IsRequired)
+                        throw new InvalidOperationException("Command was invoked with too few parameters");
+                    else
+                        result.Add(Type.Missing);
+                }
                 else
                 {
                     if (arg.Value is Optional<object> optional)

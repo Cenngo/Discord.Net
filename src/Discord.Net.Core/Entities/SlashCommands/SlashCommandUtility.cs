@@ -1,14 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Discord
 {
     public static class SlashCommandUtility
     {
-        public static ApplicationCommandOptionType GetDiscordOptionType ( Type type )
+        public static ApplicationCommandOptionType GetDiscordOptionType (Type type)
         {
             if (type == typeof(string))
                 return ApplicationCommandOptionType.String;
@@ -25,13 +21,13 @@ namespace Discord
             else if (type.IsAssignableFrom(typeof(IUser)))
                 return ApplicationCommandOptionType.User;
             else
-                throw new ArgumentException("Type of parameter used is not supported by Discord");
+                throw new ArgumentException("Type of parameter supplied is not supported by Discord");
         }
 
         public static ApplicationCommandOptionType GetDiscordOptionType<T> ( ) =>
             GetDiscordOptionType(typeof(T));
 
-        public static Type GetParameterType(ApplicationCommandOptionType type)
+        public static Type GetParameterType (ApplicationCommandOptionType type)
         {
             return type switch
             {
@@ -41,7 +37,8 @@ namespace Discord
                 ApplicationCommandOptionType.Mentionable => typeof(IMentionable),
                 ApplicationCommandOptionType.Role => typeof(IRole),
                 ApplicationCommandOptionType.Channel => typeof(IChannel),
-                ApplicationCommandOptionType.User => typeof(IUser)
+                ApplicationCommandOptionType.User => typeof(IUser),
+                _ => throw new ArgumentException("Provided option type cannot be used as a method parameter.")
             };
         }
     }

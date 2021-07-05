@@ -1539,7 +1539,7 @@ namespace Discord.API
 
             var ids = new BucketIds(guildId: guildId);
             return await SendJsonAsync<ApplicationCommand>("POST", ( ) => $"applications/{applicationId}/guilds/{guildId}/commands", args, ids, options: options)
-                .ConfigureAwait(false);
+                            .ConfigureAwait(false);
         }
         public async Task<ApplicationCommand> GetGuildApplicationCommand(ulong applicationId, ulong guildId, ulong commandId, RequestOptions options = null)
         {
@@ -1618,7 +1618,15 @@ namespace Discord.API
         {
             options = RequestOptions.CreateOrClone(options);
 
-            await SendJsonAsync("POST", ( ) => $"interactions/{interactionId}/{interactionToken}/callback", args, new BucketIds(), options: options).ConfigureAwait(false);
+            try
+            {
+                await SendJsonAsync("POST", ( ) => $"interactions/{interactionId}/{interactionToken}/callback", args, new BucketIds(), options: options).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
         public async Task<InteractionResponse> GetOriginalInteractionResponse (ulong applicationId, string interactionToken, RequestOptions options = null)
         {
@@ -1632,7 +1640,7 @@ namespace Discord.API
         {
             options = RequestOptions.CreateOrClone(options);
 
-            await SendAsync("PATCH", ( ) => $"webhooks/{applicationId}/{interactionToken}/messages/@original", new BucketIds(),
+            await SendJsonAsync("PATCH", ( ) => $"webhooks/{applicationId}/{interactionToken}/messages/@original", args, new BucketIds(),
                 options: options).ConfigureAwait(false);
         }
         public async Task DeleteOriginalInteractionResponse(ulong applicationId, string interactionToken, RequestOptions options = null)

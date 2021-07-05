@@ -4,8 +4,6 @@ namespace Discord.API
 {
     internal class GuildApplicationCommandPermission : ApplicationCommandPermission
     {
-        [JsonProperty("id")]
-        public ulong Id { get; set; }
         [JsonProperty("application_id")]
         public ulong ApplicationId { get; set; }
         [JsonProperty("guild_id")]
