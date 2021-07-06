@@ -38,10 +38,12 @@ namespace Discord.WebSocket
 
         internal static SocketInteraction Create(DiscordSocketClient discord, ClientState state, SocketUser user, ISocketMessageChannel channel, Model model)
         {
-            if (model.Type == InteractionType.ApplicationCommand || model.Type == InteractionType.MessageComponent)
+            if (model.Type == InteractionType.ApplicationCommand)
                 return new SocketCommandInteraction(discord, state, user, channel, model);
-            else
+            else if (model.Type == InteractionType.MessageComponent)
                 return new SocketMessageInteraction(discord, state, user, channel, model);
+            else
+                throw new ArgumentException("This kind of interaction is not supported.");
         }
 
         internal virtual void Update (ClientState state, Model model )

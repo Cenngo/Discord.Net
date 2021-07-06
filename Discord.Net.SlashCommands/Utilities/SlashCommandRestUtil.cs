@@ -1,11 +1,7 @@
 using Discord.API;
 using Discord.API.Rest;
-using Discord.Rest;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Discord.SlashCommands
 {
@@ -35,22 +31,27 @@ namespace Discord.SlashCommands
 
         public static bool TryParseApplicationCommandParams (this SlashCommandInfo commandInfo, out CreateApplicationCommandParams commandParams)
         {
-            if (commandInfo.Module != null)
+            if (!string.IsNullOrEmpty(commandInfo.Module?.Name))
             {
                 commandParams = null;
                 return false;
             }
 
-            commandParams = new CreateApplicationCommandParams(commandInfo.Name, commandInfo.Description)
-            {
-                DefaultPermission = commandInfo.DefaultPermission,
-                Options = commandInfo.Parameters?.Select(x => x.ParseApplicationCommandOption()).ToArray()
-            };
+            commandParams = ParseApplicationCommandParams(commandInfo);
 
             if (!commandParams.Options.IsSpecified)
                 commandParams.Options = null;
 
             return true;
+        }
+
+        public static CreateApplicationCommandParams ParseApplicationCommandParams(this SlashCommandInfo commandInfo)
+        {
+            return new CreateApplicationCommandParams(commandInfo.Name, commandInfo.Description)
+            {
+                DefaultPermission = commandInfo.DefaultPermission,
+                Options = commandInfo.Parameters?.Select(x => x.ParseApplicationCommandOption()).ToArray()
+            };
         }
 
         public static bool TryParseApplicationCommandOption (this SlashCommandInfo commandInfo, out API.ApplicationCommandOption commandOption)
@@ -129,23 +130,26 @@ namespace Discord.SlashCommands
                 if (standalone.TryParseApplicationCommandParams(out var commandParams))
                     result.Add(commandParams);
 
-            var grouped = commands.GroupBy(x => x.Group.Name);
+            var grouped = commands.GroupBy(x => x.Group?.Name);
 
             foreach (var group in grouped)
             {
-                var description = group.First(x => !string.IsNullOrEmpty(x.Group.Description)).Description;
-                var options = group.Select(x => x.ParseApplicationCommandOption()).ToArray();
-
-                var module = new CreateApplicationCommandParams(group.Key, description)
+                if(group.Key != null)
                 {
-                    Options = options,
-                    DefaultPermission = true
-                };
+                    var description = group.First(x => !string.IsNullOrEmpty(x.Group?.Description)).Description;
+                    var options = group.Select(x => x.ParseApplicationCommandOption()).ToArray();
 
-                if (!module.Options.IsSpecified)
-                    module.Options = null;
+                    var module = new CreateApplicationCommandParams(group.Key, description)
+                    {
+                        Options = options,
+                        DefaultPermission = true
+                    };
 
-                result.Add(module);
+                    if (!module.Options.IsSpecified)
+                        module.Options = null;
+
+                    result.Add(module);
+                }
             }
             return result;
         }
@@ -168,19 +172,6 @@ namespace Discord.SlashCommands
                 Options = options.ToArray()
             };
             return true;
-        }
-
-        public static async Task CreateApplicationCommand (ulong applicationId, BaseDiscordClient discord, SlashModuleInfo module, RequestOptions options)
-        {
-            var result = new List<CreateApplicationCommandParams>();
-
-            if (string.IsNullOrEmpty(module.Name))
-                result.AddRange(module.Commands.GroupParseApplicationCommandParams());
-            else if (module.TryParseApplicationCommandParams(out var commandParams))
-                result.Add(commandParams);
-
-            foreach (var args in result)
-                await discord.ApiClient.CreateGlobalApplicationCommand(applicationId, args);
         }
     }
 }

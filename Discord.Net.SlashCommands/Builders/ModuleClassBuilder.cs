@@ -1,13 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using Discord;
-using Microsoft.Extensions.DependencyInjection;
-using static Discord.SlashCommands.ReflectionUtils;
 
 namespace Discord.SlashCommands.Builders
 {
@@ -15,7 +10,7 @@ namespace Discord.SlashCommands.Builders
     {
         private static readonly TypeInfo ModuleTypeInfo = typeof(ISlashModuleBase).GetTypeInfo();
 
-        public static async Task<IEnumerable<TypeInfo>> SearchAsync(Assembly assembly, SlashCommandService commandService)
+        public static async Task<IEnumerable<TypeInfo>> SearchAsync (Assembly assembly, SlashCommandService commandService)
         {
             bool IsLoadableModule (TypeInfo info)
             {
@@ -24,7 +19,7 @@ namespace Discord.SlashCommands.Builders
 
             var result = new List<TypeInfo>();
 
-            foreach(var type in assembly.DefinedTypes)
+            foreach (var type in assembly.DefinedTypes)
             {
                 if (type.IsPublic || type.IsNestedPublic)
                 {
@@ -41,7 +36,7 @@ namespace Discord.SlashCommands.Builders
             return result;
         }
 
-        public static async Task<Dictionary<Type, SlashModuleInfo>> BuildAsync ( IEnumerable<TypeInfo> validTypes, SlashCommandService commandService,
+        public static async Task<Dictionary<Type, SlashModuleInfo>> BuildAsync (IEnumerable<TypeInfo> validTypes, SlashCommandService commandService,
             IServiceProvider services)
         {
             var topLevelGroups = validTypes.Where(x => x.DeclaringType == null || !IsValidModuleDefinition(x.DeclaringType.GetTypeInfo()));
@@ -49,7 +44,7 @@ namespace Discord.SlashCommands.Builders
 
             var result = new Dictionary<Type, SlashModuleInfo>();
 
-            foreach(var type in validTypes)
+            foreach (var type in validTypes)
             {
                 var builder = new SlashModuleBuilder(commandService);
 
@@ -69,10 +64,8 @@ namespace Discord.SlashCommands.Builders
         {
             var attributes = typeInfo.GetCustomAttributes();
             builder.TypeInfo = typeInfo;
-            builder.Name = typeInfo.Name;
-            builder.Description = typeInfo.Name;
 
-            foreach(var attribute in attributes)
+            foreach (var attribute in attributes)
             {
                 switch (attribute)
                 {
@@ -97,12 +90,16 @@ namespace Discord.SlashCommands.Builders
 
             var methods = typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var validCommands = methods.Where(IsValidCommandDefinition);
+            var validInternalCommands = methods.Where(IsValidInteractionDefinition);
 
             foreach (var method in validCommands)
                 builder.AddCommand(x => BuildCommand(x, typeInfo, method, commandService, services));
+
+            foreach (var method in validInternalCommands)
+                builder.AddInteraction(x => BuildInteraction(x, typeInfo, method, commandService, services));
         }
 
-        private static void BuildCommand ( SlashCommandBuilder builder, TypeInfo typeInfo, MethodInfo methodInfo,
+        private static void BuildCommand (SlashCommandBuilder builder, TypeInfo typeInfo, MethodInfo methodInfo,
             SlashCommandService commandService, IServiceProvider services)
         {
             var attributes = methodInfo.GetCustomAttributes();
@@ -110,7 +107,7 @@ namespace Discord.SlashCommands.Builders
             builder.Name = methodInfo.Name;
             builder.Description = methodInfo.Name;
 
-            foreach(var attribute in attributes)
+            foreach (var attribute in attributes)
             {
                 switch (attribute)
                 {
@@ -121,7 +118,7 @@ namespace Discord.SlashCommands.Builders
                         break;
                     case SlashCommandAttribute command:
                         {
-                            if(!string.IsNullOrEmpty(command.Name))
+                            if (!string.IsNullOrEmpty(command.Name))
                                 builder.Name = command.Name;
 
                             if (!string.IsNullOrEmpty(command.Description))
@@ -146,7 +143,7 @@ namespace Discord.SlashCommands.Builders
 
             var createInstance = ReflectionUtils.CreateBuilder<ISlashModuleBase>(typeInfo, commandService);
 
-            async Task<IResult> ExecuteCallback(ISlashCommandContext context, object[] args, IServiceProvider serviceProvider, SlashCommandInfo commandInfo)
+            async Task<IResult> ExecuteCallback (ISlashCommandContext context, object[] args, IServiceProvider serviceProvider, SlashCommandInfo commandInfo)
             {
                 var instance = createInstance(serviceProvider);
                 instance.SetContext(context);
@@ -156,12 +153,12 @@ namespace Discord.SlashCommands.Builders
                     instance.BeforeExecute(commandInfo);
                     var task = methodInfo.Invoke(instance, args) as Task ?? Task.Delay(0);
                     await task.ConfigureAwait(false);
-                    return new ExecuteResult(null, null, true);
+                    return ExecuteResult.FromSuccess();
                 }
                 catch (Exception ex)
                 {
                     await commandService._cmdLogger.ErrorAsync(ex);
-                    return new ExecuteResult(SlashCommandError.Exception, ex.Message, false);
+                    return ExecuteResult.FromError(ex);
                 }
                 finally
                 {
@@ -173,7 +170,61 @@ namespace Discord.SlashCommands.Builders
             builder.Callback = ExecuteCallback;
         }
 
-        private static void BuildParameter ( SlashParameterBuilder builder,  ParameterInfo paramInfo,SlashCommandService commandService,
+        private static void BuildInteraction (SlashInteractionBuilder builder, TypeInfo typeInfo, MethodInfo methodInfo,
+            SlashCommandService commandService, IServiceProvider services)
+        {
+            var attributes = methodInfo.GetCustomAttributes();
+
+            builder.Name = methodInfo.Name;
+
+            foreach (var attribute in attributes)
+            {
+                switch (attribute)
+                {
+                    case InteractionAttribute interaction:
+                        builder.Name = interaction.CustomId;
+                        break;
+                    default:
+                        builder.AddAttributes(attribute);
+                        break;
+                }
+            }
+
+            var parameters = methodInfo.GetParameters();
+
+            foreach (var parameter in parameters)
+                builder.AddParameter(parameter);
+
+            var createInstance = ReflectionUtils.CreateBuilder<ISlashModuleBase>(typeInfo, commandService);
+
+            async Task<IResult> ExecuteCallback (ISlashCommandContext context, object[] args, IServiceProvider serviceProvider, SlashInteractionInfo commandInfo)
+            {
+                var instance = createInstance(serviceProvider);
+                instance.SetContext(context);
+
+                try
+                {
+                    instance.BeforeExecute(null);
+                    var task = methodInfo.Invoke(instance, args) as Task ?? Task.Delay(0);
+                    await task.ConfigureAwait(false);
+                    return ExecuteResult.FromSuccess();
+                }
+                catch (Exception ex)
+                {
+                    await commandService._cmdLogger.ErrorAsync(ex);
+                    return ExecuteResult.FromError(ex);
+                }
+                finally
+                {
+                    instance.AfterExecute(null);
+                    ( instance as IDisposable )?.Dispose();
+                }
+            }
+
+            builder.Callback = ExecuteCallback;
+        }
+
+        private static void BuildParameter (SlashParameterBuilder builder, ParameterInfo paramInfo, SlashCommandService commandService,
             IServiceProvider services)
         {
             var attributes = paramInfo.GetCustomAttributes();
@@ -185,7 +236,7 @@ namespace Discord.SlashCommands.Builders
             builder.DefaultValue = paramInfo.DefaultValue;
             builder.ParameterType = paramType;
 
-            foreach(var attribute in attributes)
+            foreach (var attribute in attributes)
             {
                 switch (attribute)
                 {
@@ -225,7 +276,15 @@ namespace Discord.SlashCommands.Builders
         private static bool IsValidCommandDefinition (MethodInfo methodInfo)
         {
             return methodInfo.IsDefined(typeof(SlashCommandAttribute)) &&
-                    methodInfo.ReturnType == typeof(Task) &&
+                   ( methodInfo.ReturnType == typeof(Task) || methodInfo.ReturnType == typeof(Task<RuntimeResult>) ) &&
+                   !methodInfo.IsStatic &&
+                   !methodInfo.IsGenericMethod;
+        }
+
+        private static bool IsValidInteractionDefinition (MethodInfo methodInfo)
+        {
+            return methodInfo.IsDefined(typeof(InteractionAttribute)) &&
+                   ( methodInfo.ReturnType == typeof(Task) || methodInfo.ReturnType == typeof(Task<RuntimeResult>) ) &&
                    !methodInfo.IsStatic &&
                    !methodInfo.IsGenericMethod;
         }

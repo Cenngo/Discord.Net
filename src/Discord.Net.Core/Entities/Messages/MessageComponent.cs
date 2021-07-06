@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Discord
 {
-    public class MessageComponent
+    public abstract class MessageComponent : IMessageComponent
     {
+        public MessageComponentType ComponentType { get; }
 
+        internal MessageComponent (MessageComponentType type)
+        {
+            ComponentType = type;
+        }
     }
 }

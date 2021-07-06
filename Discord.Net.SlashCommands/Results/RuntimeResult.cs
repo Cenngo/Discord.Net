@@ -1,10 +1,23 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Discord.Net.SlashCommands.Results
+namespace Discord.SlashCommands
 {
-    class RuntimeResult
+    public abstract class RuntimeResult : IResult
     {
+        public SlashCommandError? Error { get; }
+
+        public string ErrorReason { get; }
+
+        public bool IsSuccess => !Error.HasValue;
+
+        protected RuntimeResult (SlashCommandError? error, string reason )
+        {
+            Error = error;
+            ErrorReason = reason;
+        }
+
+        public override string ToString ( ) => ErrorReason ?? ( IsSuccess ? "Successful" : "Unsuccessful" );
     }
 }

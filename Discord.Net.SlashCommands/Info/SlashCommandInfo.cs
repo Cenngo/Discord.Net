@@ -7,10 +7,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Discord.API;
 using Discord.WebSocket;
+using System.Runtime.ExceptionServices;
 
 namespace Discord.SlashCommands
 {
-    public class SlashCommandInfo
+    public class SlashCommandInfo : IExecutableInfo
     {
         private readonly Func<ISlashCommandContext, object[], IServiceProvider, SlashCommandInfo, Task> _action;
 
@@ -38,14 +39,12 @@ namespace Discord.SlashCommands
             _action = builder.Callback;
         }
 
-        public async Task ExecuteAsync (ISlashCommandContext context, IServiceProvider services )
+        public async Task<IResult> ExecuteAsync (ISlashCommandContext context, IServiceProvider services )
         {
-            services = services ?? EmptyServiceProvider.Instance;
-
             if (context.Interaction is SocketCommandInteraction commandInteraction)
-            {
-                await ExecuteAsync(context, Parameters, commandInteraction.Data, services);
-            }
+                return await ExecuteAsync(context, Parameters, commandInteraction.Data, services);
+            else
+                return ExecuteResult.FromError(SlashCommandError.ParseFailed, $"Provided {nameof(ISlashCommandContext)} belongs to a message component");
         }
 
         public async Task<IResult> ExecuteAsync(ISlashCommandContext context, IEnumerable<SlashParameterInfo> paramList,
@@ -57,15 +56,21 @@ namespace Discord.SlashCommands
             {
                 object[] args = GenerateArgs(paramList, argList);
 
-                _ = Task.Run(async ( ) =>
+                if (CommandService._runAsync)
                 {
-                    await ExecuteInternalAsync(context, args, services).ConfigureAwait(false);
-                });
-                return new ExecuteResult(null, null, true);
+                    _ = Task.Run(async ( ) =>
+                    {
+                        await ExecuteInternalAsync(context, args, services).ConfigureAwait(false);
+                    });
+                }
+                else
+                    return await ExecuteInternalAsync(context, args, services).ConfigureAwait(false);
+
+                return ExecuteResult.FromSuccess();
             }
             catch (Exception ex)
             {
-                return new ExecuteResult(SlashCommandError.Exception, ex.Message, false);
+                return ExecuteResult.FromError(ex);
             }
         }
 
@@ -77,15 +82,49 @@ namespace Discord.SlashCommands
             {
                 var task = _action(context, args, services, this);
 
-                await task.ConfigureAwait(false);
-                var result = new ExecuteResult(null, null, true);
-                await Module.CommandService._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+                if(task is Task<IResult> resultTask)
+                {
+                    var result = await resultTask.ConfigureAwait(false);
+                    await Module.CommandService._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+                    if (result is RuntimeResult execResult)
+                        return execResult;
+                }
+                else if(task is Task<ExecuteResult> execTask)
+                {
+                    var result = await execTask.ConfigureAwait(false);
+                    await Module.CommandService._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+                    return result;
+                }
+                else
+                {
+                    await task.ConfigureAwait(false);
+                    var result = ExecuteResult.FromSuccess();
+                    await Module.CommandService._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+                    return result;
+                }
 
-                return result;
+                return ExecuteResult.FromError(SlashCommandError.Unsuccessful, "Command execution failed for an unknown reason");
             }
             catch (Exception ex)
             {
-                return new ExecuteResult(SlashCommandError.Exception, ex.Message, false);
+                var originalEx = ex;
+                while (ex is TargetInvocationException)
+                    ex = ex.InnerException;
+
+                await Module.CommandService._cmdLogger.ErrorAsync(ex);
+
+                var result = ExecuteResult.FromError(ex);
+                await Module.CommandService._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+
+                if (Module.CommandService._throwOnError)
+                {
+                    if (ex == originalEx)
+                        throw;
+                    else
+                        ExceptionDispatchInfo.Capture(ex).Throw();
+                }
+
+                return result;
             }
             finally
             {
@@ -95,11 +134,20 @@ namespace Discord.SlashCommands
 
         private object[] GenerateArgs (IEnumerable<SlashParameterInfo> paramList, IEnumerable<SocketInteractionParameter> argList )
         {
+            var args = argList?.ToList();
             var result = new List<object>();
+
+            void AddValue(SocketInteractionParameter param)
+            {
+                if (param.Value is Optional<object> optional)
+                    result.Add(optional.Value);
+                else
+                    result.Add(param.Value);
+            }
 
             foreach(var parameter in paramList)
             {
-                var arg = argList.FirstOrDefault(x => string.Equals(x.Name, parameter.Name, StringComparison.OrdinalIgnoreCase));
+                var arg = args?.FirstOrDefault(x => string.Equals(x.Name, parameter.Name, StringComparison.OrdinalIgnoreCase));
 
                 if(arg == null || arg == default)
                 {
@@ -110,10 +158,13 @@ namespace Discord.SlashCommands
                 }
                 else
                 {
-                    if (arg.Value is Optional<object> optional)
-                        result.Add(optional.Value);
+                    if (parameter.Attributes.Any(x => x is ParamArrayAttribute))
+                        foreach (var remaining in args)
+                            AddValue(remaining);
                     else
-                        result.Add(arg.Value);
+                        AddValue(arg);
+
+                    args?.Remove(arg);
                 }
             }
 

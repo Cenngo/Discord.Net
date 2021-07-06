@@ -13,6 +13,7 @@ namespace Discord.SlashCommands
         public bool DefaultPermission { get; }
         public IReadOnlyList<SlashModuleInfo> SubModules { get; }
         public IReadOnlyList<SlashCommandInfo> Commands { get; }
+        public IReadOnlyCollection<SlashInteractionInfo> Interactions { get; }
         public SlashModuleInfo Parent { get; }
         public IReadOnlyList<Attribute> Attributes { get; }
         public bool IsSubModule => Parent != null;
@@ -27,6 +28,7 @@ namespace Discord.SlashCommands
             DefaultPermission = builder.DefaultPermission;
             SubModules = BuildSubModules(builder, commandService).ToImmutableArray();
             Commands = BuildCommands(builder).ToImmutableArray();
+            Interactions = BuildInteractions(builder).ToImmutableArray();
             Attributes = BuildAttributes(builder).ToImmutableArray();
         }
 
@@ -46,6 +48,16 @@ namespace Discord.SlashCommands
 
             foreach (SlashCommandBuilder commandBuilder in builder.Commands)
                 result.Add(commandBuilder.Build(this, CommandService));
+
+            return result;
+        }
+
+        private IEnumerable<SlashInteractionInfo> BuildInteractions(SlashModuleBuilder builder)
+        {
+            var result = new List<SlashInteractionInfo>();
+
+            foreach (var interactionBuilder in builder.Interactions)
+                result.Add(interactionBuilder.Build(this, CommandService));
 
             return result;
         }

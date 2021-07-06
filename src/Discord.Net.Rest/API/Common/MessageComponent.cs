@@ -1,9 +1,4 @@
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Discord.API
 {
@@ -23,7 +18,15 @@ namespace Discord.API
         public Optional<string> Url { get; set; }
         [JsonProperty("disabled")]
         public Optional<bool> Disabled { get; set; }
+        [JsonProperty("placeholder")]
+        public Optional<string> Placeholder { get; set; }
+        [JsonProperty("min_values")]
+        public Optional<int> MinValues { get; set; }
+        [JsonProperty("max_values")]
+        public Optional<int> MaxValues { get; set; }
+        [JsonProperty("options")]
+        public Optional<SelectOption[]> Options { get; set; }
         [JsonProperty("components")]
-        public Optional<MessageComponent> Components { get; set; }
+        public Optional<MessageComponent[]> Components { get; set; }
     }
 }

@@ -4,35 +4,35 @@ using System.Collections.Generic;
 
 namespace Discord.SlashCommands
 {
-    internal class SlashCommandMap
+    internal class SlashCommandMap<T> where T : class, IExecutableInfo
     {
         private static readonly char[] Delimiters = { ' ', '\n', '\r', ',' };
 
-        private readonly ConcurrentDictionary<string, SlashCommandInfo> _map;
+        private readonly ConcurrentDictionary<string, T> _map;
         private readonly object _lockObj = new object();
 
         public SlashCommandMap (SlashCommandService commandService)
         {
-            _map = new ConcurrentDictionary<string, SlashCommandInfo>();
+            _map = new ConcurrentDictionary<string, T>();
         }
 
-        public bool AddCommand (SlashCommandInfo command)
+        public bool AddCommand (T command)
         {
             string key = ParseCommandName(command);
 
             return _map.TryAdd(key, command);
         }
 
-        public bool RemoveCommand (SlashCommandInfo command)
+        public bool RemoveCommand (T command)
         {
             string key = ParseCommandName(command);
 
             return _map.TryRemove(key, out var _);
         }
 
-        public IEnumerable<SlashCommandInfo> GetCommands (string input)
+        public IEnumerable<T> GetCommands (string input)
         {
-            var result = new List<SlashCommandInfo>();
+            var result = new List<T>();
 
             lock (_lockObj)
             {
@@ -60,7 +60,7 @@ namespace Discord.SlashCommands
             return true;
         }
 
-        private static string ParseCommandName (SlashCommandInfo command)
+        private static string ParseCommandName (T command)
         {
             string groupName = command.Group?.Name;
             string commandName = command.Name;

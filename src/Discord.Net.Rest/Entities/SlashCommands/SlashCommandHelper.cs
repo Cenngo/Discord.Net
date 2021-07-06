@@ -198,6 +198,9 @@ namespace Discord.Rest
                 Components = messageComponents?.Select(x => x?.ToModel()).ToArray()
             };
 
+            if (args.Components.GetValueOrDefault(null) != null && args.Content.GetValueOrDefault(null) == null)
+                throw new InvalidOperationException("Message components must be provided alongside a string content.");
+
             await discord.ApiClient.EditOriginalInteraction(appId, token, args, options).ConfigureAwait(false);
         }
 

@@ -17,5 +17,7 @@ namespace Discord.API
         public string CustomId { get; set; }
         [JsonProperty("component_type")]
         public MessageComponentType ComponentType { get; set; }
+        [JsonProperty("values")]
+        public Optional<string[]> Values { get; set; }
     }
 }

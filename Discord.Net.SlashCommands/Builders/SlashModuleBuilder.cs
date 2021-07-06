@@ -11,6 +11,7 @@ namespace Discord.SlashCommands.Builders
         private readonly List<Attribute> _attributes;
         private readonly List<SlashModuleBuilder> _subModules;
         private readonly List<SlashCommandBuilder> _commands;
+        private readonly List<SlashInteractionBuilder> _interactions;
 
         public SlashCommandService CommandService { get; }
         public SlashModuleBuilder Parent { get; }
@@ -21,6 +22,7 @@ namespace Discord.SlashCommands.Builders
         public IReadOnlyList<Attribute> Attributes => _attributes;
         public IReadOnlyList<SlashModuleBuilder> SubModules => _subModules;
         public IReadOnlyList<SlashCommandBuilder> Commands => _commands;
+        public IReadOnlyList<SlashInteractionBuilder> Interactions => _interactions;
 
         internal TypeInfo TypeInfo { get; set; }
 
@@ -32,6 +34,7 @@ namespace Discord.SlashCommands.Builders
             _attributes = new List<Attribute>();
             _subModules = new List<SlashModuleBuilder>();
             _commands = new List<SlashCommandBuilder>();
+            _interactions = new List<SlashInteractionBuilder>();
         }
 
         public SlashModuleBuilder WithName (string name)
@@ -75,6 +78,14 @@ namespace Discord.SlashCommands.Builders
             return this;
         }
 
+        public SlashModuleBuilder AddInteraction(Action<SlashInteractionBuilder> configure)
+        {
+            var command = new SlashInteractionBuilder(this);
+            configure(command);
+            _interactions.Add(command);
+            return this;
+        }
+
         public SlashModuleBuilder AddModule ( string name, string description, Action<SlashModuleBuilder> configure)
         {
             var subModule = new SlashModuleBuilder(CommandService, this);
@@ -85,9 +96,6 @@ namespace Discord.SlashCommands.Builders
 
         internal SlashModuleInfo Build ( SlashModuleInfo parent = null, SlashCommandService commandService = null )
         {
-            if (string.IsNullOrEmpty(Name) || string.IsNullOrEmpty(Description))
-                throw new InvalidOperationException("Name and description must be populated.");
-
             return new SlashModuleInfo(this, commandService, parent);
         }
     }
