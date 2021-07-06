@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Discord
 {
@@ -12,7 +13,7 @@ namespace Discord
                 return ApplicationCommandOptionType.Integer;
             else if (type == typeof(bool))
                 return ApplicationCommandOptionType.Boolean;
-            else if (type.IsAssignableFrom(typeof(IMentionable)))
+            else if (type.IsAssignableFrom(typeof(IUser)))
                 return ApplicationCommandOptionType.Mentionable;
             else if (type.IsAssignableFrom(typeof(IRole)))
                 return ApplicationCommandOptionType.Role;

@@ -19,6 +19,7 @@
             <dependency id="Discord.Net.WebSocket" version="3.0.0-dev$suffix$" />
             <dependency id="Discord.Net.Commands" version="3.0.0-dev$suffix$" />
             <dependency id="Discord.Net.Webhook" version="3.0.0-dev$suffix$" />
+	    <dependency id="Discord.Net.SlashCommands" version="3.0.0-dev$suffix$" />
         </group>       
         <group targetFramework="netstandard2.0">
             <dependency id="Discord.Net.Core" version="3.0.0-dev$suffix$" />
@@ -26,6 +27,7 @@
             <dependency id="Discord.Net.WebSocket" version="3.0.0-dev$suffix$" />
             <dependency id="Discord.Net.Commands" version="3.0.0-dev$suffix$" />
             <dependency id="Discord.Net.Webhook" version="3.0.0-dev$suffix$" />
+	    <dependency id="Discord.Net.SlashCommands" version="3.0.0-dev$suffix$" />
         </group>
 		<group targetFramework="netstandard2.1">
             <dependency id="Discord.Net.Core" version="3.0.0-dev$suffix$" />
@@ -33,6 +35,7 @@
             <dependency id="Discord.Net.WebSocket" version="3.0.0-dev$suffix$" />
             <dependency id="Discord.Net.Commands" version="3.0.0-dev$suffix$" />
             <dependency id="Discord.Net.Webhook" version="3.0.0-dev$suffix$" />
+	    <dependency id="Discord.Net.SlashCommands" version="3.0.0-dev$suffix$" />
         </group>
     </dependencies>
   </metadata>

@@ -15,15 +15,16 @@ namespace Discord.SlashCommands
                 Description = parameterInfo.Description.ToLower(),
                 Required = parameterInfo.IsRequired,
                 Type = parameterInfo.DiscordOptionType,
-                Choices = parameterInfo.Choices?.Select(x => new ApplicationCommandOptionChoice
+                Choices = parameterInfo.Choices != null ?
+                parameterInfo.Choices.Select(x => new ApplicationCommandOptionChoice
                 {
-                    Name = x.Name.ToLower(),
+                    Name = x.Name,
                     Value = x.Value
-                }).ToArray(),
+                }).ToArray() : null,
                 Options = null
             };
 
-            if (!option.Choices.IsSpecified)
+            if (option.Choices.IsSpecified && option.Choices.Value.Count() == 0)
                 option.Choices = null;
 
             return option;
@@ -94,26 +95,29 @@ namespace Discord.SlashCommands
             foreach (var standalone in standalones)
                 result.Add(standalone.ParseApplicationCommandOption());
 
-            var grouped = subCommands.GroupBy(x => x.Group.Name);
+            var grouped = subCommands.GroupBy(x => x.Group?.Name);
 
             foreach (var group in grouped)
             {
-                var description = group.First(x => !string.IsNullOrEmpty(x.Group.Description)).Description;
-
-                var current = new API.ApplicationCommandOption()
+                if(group.Key != null)
                 {
-                    Name = group.Key.ToLower(),
-                    Description = description.ToLower(),
-                    Type = ApplicationCommandOptionType.SubCommandGroup,
-                    Options = group.Select(x => x.ParseApplicationCommandOption()).ToArray(),
-                    Choices = null,
-                    Required = false
-                };
+                    var description = group.First(x => !string.IsNullOrEmpty(x.Group?.Description)).Description;
 
-                if (!current.Options.IsSpecified)
-                    current.Options = null;
+                    var current = new API.ApplicationCommandOption()
+                    {
+                        Name = group.Key.ToLower(),
+                        Description = description.ToLower(),
+                        Type = ApplicationCommandOptionType.SubCommandGroup,
+                        Options = group.Select(x => x.ParseApplicationCommandOption()).ToArray(),
+                        Choices = null,
+                        Required = false
+                    };
 
-                result.Add(current);
+                    if (!current.Options.IsSpecified)
+                        current.Options = null;
+
+                    result.Add(current);
+                }
             }
 
             return result;
@@ -136,10 +140,10 @@ namespace Discord.SlashCommands
             {
                 if(group.Key != null)
                 {
-                    var description = group.First(x => !string.IsNullOrEmpty(x.Group?.Description)).Description;
+                    var description = group.First(x => !string.IsNullOrEmpty(x.Group?.Description)).Group.Description;
                     var options = group.Select(x => x.ParseApplicationCommandOption()).ToArray();
 
-                    var module = new CreateApplicationCommandParams(group.Key, description)
+                    var module = new CreateApplicationCommandParams(group.Key.ToLower(), description)
                     {
                         Options = options,
                         DefaultPermission = true

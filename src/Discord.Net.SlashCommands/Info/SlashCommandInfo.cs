@@ -139,10 +139,18 @@ namespace Discord.SlashCommands
 
             void AddValue(SocketInteractionParameter param)
             {
+                var type = param.Type;
+                object value;
+
                 if (param.Value is Optional<object> optional)
-                    result.Add(optional.Value);
+                    value = optional.Value;
                 else
-                    result.Add(param.Value);
+                    value = param.Value;
+
+                if (value is IConvertible)
+                    result.Add(Convert.ChangeType(value, type));
+                else
+                    result.Add(value);
             }
 
             foreach(var parameter in paramList)
