@@ -439,5 +439,26 @@ namespace Discord.WebSocket
             remove { _interactionReceivedEvent.Remove(value); }
         }
         internal readonly AsyncEvent<Func<SocketInteraction, Task>> _interactionReceivedEvent = new AsyncEvent<Func<SocketInteraction, Task>>();
+
+        public event Func<SocketApplicationCommand, Task> ApplicationCommandCreated
+        {
+            add { _applicationCommandCreatedEvent.Add(value); }
+            remove { _applicationCommandCreatedEvent.Remove(value); }
+        }
+        internal readonly AsyncEvent<Func<SocketApplicationCommand, Task>> _applicationCommandCreatedEvent = new AsyncEvent<Func<SocketApplicationCommand, Task>>();
+
+        public event Func<SocketApplicationCommand, Task> ApplicationCommandUpdated
+        {
+            add { _applicationCommandUpdatedEvent.Add(value); }
+            remove { _applicationCommandUpdatedEvent.Remove(value); }
+        }
+        internal readonly AsyncEvent<Func<SocketApplicationCommand, Task>> _applicationCommandUpdatedEvent = new AsyncEvent<Func<SocketApplicationCommand, Task>>();
+
+        public event Func<SocketApplicationCommand, Task> ApplicationCommandDeleted
+        {
+            add { _applicationCommandDeletedEvent.Add(value); }
+            remove { _applicationCommandDeletedEvent.Remove(value); }
+        }
+        internal readonly AsyncEvent<Func<SocketApplicationCommand, Task>> _applicationCommandDeletedEvent = new AsyncEvent<Func<SocketApplicationCommand, Task>>();
     }
 }

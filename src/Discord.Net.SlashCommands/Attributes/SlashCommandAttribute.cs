@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Discord.SlashCommands
 {
+    /// <summary>
+    /// Use to create an Application Command. Stacks with <see cref="SlashGroupAttribute"/>
+    /// </summary>
     [AttributeUsage( AttributeTargets.Method, AllowMultiple = false)]
     public class SlashCommandAttribute : Attribute
     {

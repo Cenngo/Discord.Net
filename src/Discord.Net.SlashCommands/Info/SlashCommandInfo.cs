@@ -11,17 +11,45 @@ using System.Runtime.ExceptionServices;
 
 namespace Discord.SlashCommands
 {
+    /// <summary>
+    /// Provides the information of a Slash Command
+    /// </summary>
     public class SlashCommandInfo : IExecutableInfo
     {
         private readonly Func<ISlashCommandContext, object[], IServiceProvider, SlashCommandInfo, Task> _action;
 
+        /// <summary>
+        /// <see cref="SlashCommandService"/> this command belongs to
+        /// </summary>
         public SlashCommandService CommandService { get; }
+
+        /// <summary>
+        /// Get the name of this command that will be used to both execute and register this command
+        /// </summary>
         public string Name { get; }
+        /// <summary>
+        /// Get the description that will be shown in Discord
+        /// </summary>
         public string Description { get; }
+        /// <summary>
+        /// Whether this command is executable by default
+        /// </summary>
         public bool DefaultPermission { get; }
+        /// <summary>
+        /// Get the information on Parameters that belong to this command
+        /// </summary>
         public IReadOnlyList<SlashParameterInfo> Parameters { get; }
+        /// <summary>
+        /// Module this commands belongs to
+        /// </summary>
         public SlashModuleInfo Module { get; }
+        /// <summary>
+        /// Information on this commands group, if it has one
+        /// </summary>
         public SlashGroupInfo Group { get; }
+        /// <summary>
+        /// Get the list of attributes of this command
+        /// </summary>
         public IReadOnlyList<Attribute> Attributes { get; }
 
         internal SlashCommandInfo (SlashCommandBuilder builder, SlashModuleInfo module, SlashCommandService commandService)

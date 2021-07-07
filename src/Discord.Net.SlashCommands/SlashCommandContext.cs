@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Discord.SlashCommands
 {
     public class SlashCommandContext : ISlashCommandContext
@@ -13,7 +9,7 @@ namespace Discord.SlashCommands
         public virtual IDiscordInteraction Interaction { get; }
         public bool IsPrivate => Channel is IPrivateChannel;
 
-        public SlashCommandContext ( IDiscordClient client, IDiscordInteraction interaction )
+        public SlashCommandContext (IDiscordClient client, IDiscordInteraction interaction)
         {
             Client = client;
             Channel = interaction.Channel;

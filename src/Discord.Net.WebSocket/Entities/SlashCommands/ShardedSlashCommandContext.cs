@@ -1,6 +1,6 @@
 using Discord.WebSocket;
 
-namespace Discord.WebSocket
+namespace Discord.SlashCommands
 {
     public class ShardedSlashCommandContext : SocketSlashCommandContext, ISlashCommandContext
     {

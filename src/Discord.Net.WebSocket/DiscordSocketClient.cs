@@ -1930,6 +1930,48 @@ namespace Discord.WebSocket
                                     await TimedInvokeAsync(_interactionReceivedEvent, nameof(InteractionRecieved), interaction).ConfigureAwait(false);
                                 }
                                 break;
+                            case "APPLICATION_COMMAND_CREATE":
+                                {
+                                    await _gatewayLogger.DebugAsync("Received Dispatch (APPLICATION_COMMAND_CREATE)").ConfigureAwait(false);
+                                    var data = ( payload as JToken ).ToObject<ApplicationCommand>(_serializer);
+
+                                    SocketGuild guild = null;
+
+                                    if (data.GuildId.IsSpecified)
+                                        guild = new SocketGuild(this, data.GuildId.Value);
+
+                                    var applicationCommand = new SocketApplicationCommand(this, data.Id, guild, data);
+                                    await TimedInvokeAsync(_applicationCommandCreatedEvent, nameof(ApplicationCommandCreated), applicationCommand).ConfigureAwait(false);
+                                }
+                                break;
+                            case "APPLICATION_COMMAND_UPDATE":
+                                {
+                                    await _gatewayLogger.DebugAsync("Received Dispatch (APPLICATION_COMMAND_UPDATE)").ConfigureAwait(false);
+                                    var data = ( payload as JToken ).ToObject<ApplicationCommand>(_serializer);
+
+                                    SocketGuild guild = null;
+
+                                    if (data.GuildId.IsSpecified)
+                                        guild = new SocketGuild(this, data.GuildId.Value);
+
+                                    var applicationCommand = new SocketApplicationCommand(this, data.Id, guild, data);
+                                    await TimedInvokeAsync(_applicationCommandCreatedEvent, nameof(ApplicationCommandCreated), applicationCommand).ConfigureAwait(false);
+                                }
+                                break;
+                            case "APPLICATION_COMMAND_DELETE":
+                                {
+                                    await _gatewayLogger.DebugAsync("Received Dispatch (APPLICATION_COMMAND_DELETE)").ConfigureAwait(false);
+                                    var data = ( payload as JToken ).ToObject<ApplicationCommand>(_serializer);
+
+                                    SocketGuild guild = null;
+
+                                    if (data.GuildId.IsSpecified)
+                                        guild = new SocketGuild(this, data.GuildId.Value);
+
+                                    var applicationCommand = new SocketApplicationCommand(this, data.Id, guild, data);
+                                    await TimedInvokeAsync(_applicationCommandCreatedEvent, nameof(ApplicationCommandCreated), applicationCommand).ConfigureAwait(false);
+                                }
+                                break;
 
                             //Ignored (User only)
                             case "CHANNEL_PINS_ACK":

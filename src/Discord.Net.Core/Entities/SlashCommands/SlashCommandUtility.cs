@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 
 namespace Discord
 {
@@ -13,14 +12,14 @@ namespace Discord
                 return ApplicationCommandOptionType.Integer;
             else if (type == typeof(bool))
                 return ApplicationCommandOptionType.Boolean;
-            else if (type.IsAssignableFrom(typeof(IUser)))
-                return ApplicationCommandOptionType.Mentionable;
-            else if (type.IsAssignableFrom(typeof(IRole)))
+            else if (typeof(IRole).IsAssignableFrom(type))
                 return ApplicationCommandOptionType.Role;
-            else if (type.IsAssignableFrom(typeof(IChannel)))
+            else if (typeof(IChannel).IsAssignableFrom(type))
                 return ApplicationCommandOptionType.Channel;
-            else if (type.IsAssignableFrom(typeof(IUser)))
+            else if (typeof(IUser).IsAssignableFrom(type))
                 return ApplicationCommandOptionType.User;
+            else if (typeof(IMentionable).IsAssignableFrom(type))
+                return ApplicationCommandOptionType.Mentionable;
             else
                 throw new ArgumentException("Type of parameter supplied is not supported by Discord");
         }

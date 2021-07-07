@@ -278,6 +278,7 @@ namespace Discord.Rest
         }
         #endregion
 
+        // Implement
         #region Permissions
         public static async Task GetGuildCommandPermisions (BaseDiscordClient discord, ulong applicationId, IGuild guild, RequestOptions options)
         {

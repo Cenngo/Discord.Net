@@ -248,8 +248,6 @@ namespace Discord.Rest
 
             return model;
         }
-
-        //Implement
         public static API.MessageComponent ToModel (this MessageComponent entity)
         {
             switch (entity)

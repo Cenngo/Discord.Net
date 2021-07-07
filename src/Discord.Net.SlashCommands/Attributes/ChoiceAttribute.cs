@@ -2,6 +2,9 @@ using System;
 
 namespace Discord.SlashCommands
 {
+    /// <summary>
+    /// Attribute used to add a pre-determined argument value
+    /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
     public class ChoiceAttribute : Attribute
     {

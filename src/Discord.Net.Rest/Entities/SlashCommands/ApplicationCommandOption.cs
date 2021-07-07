@@ -2,18 +2,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Model = Discord.API.ApplicationCommandOption;
 
-namespace Discord.Rest
+namespace Discord
 {
+    /// <inheritdoc cref="IApplicationCommandOption"/>
     public class ApplicationCommandOption : IApplicationCommandOption
     {
-        private const int MaxOptionDepth = 3;
-
+        /// <inheritdoc/>
+        public const int MaxOptionDepth = 4;
+        /// <inheritdoc/>
         public ApplicationCommandOptionType OptionType { get; }
-
+        /// <inheritdoc/>
         public string Name { get; }
-
+        /// <inheritdoc/>
         public string Description { get; }
-
+        /// <inheritdoc/>
         public bool IsRequired { get; }
         public IReadOnlyDictionary<string, object> Choices { get; }
 
@@ -23,7 +25,7 @@ namespace Discord.Rest
 
         IEnumerable<IApplicationCommandOption> IApplicationCommandOption.Options => Options;
 
-        internal ApplicationCommandOption ( Model model )
+        internal ApplicationCommandOption ( Model model, IEnumerable<ApplicationCommandOption> options )
         {
             Name = model.Name;
             Description = model.Description;
@@ -32,16 +34,19 @@ namespace Discord.Rest
                 IsRequired = model.Required.Value;
             if (model.Choices.IsSpecified)
                 Choices = model.Choices.Value.ToDictionary(x => x.Name, x => x.Value);
-            if (model.Options.IsSpecified)
-                Options = model.Options.Value.Select(x => ApplicationCommandOption.Create(x, MaxOptionDepth)).ToList();
+
+            Options = options?.ToList();  
         }
 
         internal static ApplicationCommandOption Create(Model model, int ttl)
         {
             if (ttl <= 0)
                 throw new System.Exception("Recursive model creation is dumped, children count is higher than expected");
-            else
-                return Create(model, --ttl);
+            else if (!model.Options.IsSpecified || model.Options.Value == null)
+                return new ApplicationCommandOption(model, null);
+
+            var subOptions = model.Options.Value.Select(x => ApplicationCommandOption.Create(x, --ttl));
+            return new ApplicationCommandOption(model, subOptions);
         }
     }
 }
