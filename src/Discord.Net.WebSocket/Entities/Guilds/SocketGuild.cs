@@ -517,7 +517,7 @@ namespace Discord.WebSocket
 
         //General
         /// <inheritdoc />
-        public Task DeleteResponse(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions options = null)
             => GuildHelper.DeleteAsync(this, Discord, options);
 
         /// <inheritdoc />

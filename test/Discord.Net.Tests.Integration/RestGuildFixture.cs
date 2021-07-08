@@ -37,7 +37,7 @@ namespace Discord
         {
             foreach (var channel in Guild.GetChannelsAsync().Result)
             {
-                channel.DeleteResponse().Wait();
+                channel.DeleteAsync().Wait();
             }
         }
     }

@@ -366,7 +366,7 @@ namespace Discord
         /// <remarks>
         ///     This method will make the currently logged-in user leave the guild.
         ///     <note>
-        ///         If the user is the owner of this guild, use <see cref="IDeletable.DeleteResponse"/> instead.
+        ///         If the user is the owner of this guild, use <see cref="IDeletable.DeleteAsync"/> instead.
         ///     </note>
         /// </remarks>
         /// <param name="options">The options to be used when sending the request.</param>

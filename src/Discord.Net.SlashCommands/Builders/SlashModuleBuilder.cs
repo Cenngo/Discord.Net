@@ -94,9 +94,9 @@ namespace Discord.SlashCommands.Builders
             return this;
         }
 
-        internal SlashModuleInfo Build ( SlashModuleInfo parent = null, SlashCommandService commandService = null )
+        internal SlashModuleInfo Build ( SlashCommandService commandService = null )
         {
-            return new SlashModuleInfo(this, commandService, parent);
+            return new SlashModuleInfo(this, commandService);
         }
     }
 }

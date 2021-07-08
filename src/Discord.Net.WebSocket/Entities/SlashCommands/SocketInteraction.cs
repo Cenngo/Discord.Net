@@ -74,7 +74,7 @@ namespace Discord.WebSocket
             await SlashCommandHelper.SendInteractionResponse(Discord, this, text, isTTS, embeds, allowedMentions, messageComponents, flags, options).ConfigureAwait(false);
 
         /// <inheritdoc/>
-        public async Task DeleteResponse (RequestOptions options = null) =>
+        public async Task DeleteAsync (RequestOptions options = null) =>
             await SlashCommandHelper.DeleteInteractionResponse(Discord, this, null).ConfigureAwait(false);
 
         /// <inheritdoc cref="IDiscordInteraction.SendFollowupAsync(string, bool, string, string, IEnumerable{Embed}, AllowedMentions, RequestOptions)"/>

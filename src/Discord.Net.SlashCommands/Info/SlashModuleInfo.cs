@@ -48,30 +48,17 @@ namespace Discord.SlashCommands
         /// Get a list of the attributes of this module
         /// </summary>
         public IReadOnlyList<Attribute> Attributes { get; }
-        public bool IsSubModule => Parent != null;
 
-        internal SlashModuleInfo (SlashModuleBuilder builder, SlashCommandService commandService = null, SlashModuleInfo parent = null)
+        internal SlashModuleInfo (SlashModuleBuilder builder, SlashCommandService commandService = null)
         {
-            Parent = parent;
             CommandService = commandService ?? builder.CommandService;
 
             Name = builder.Name;
             Description = builder.Description;
             DefaultPermission = builder.DefaultPermission;
-            SubModules = BuildSubModules(builder, commandService).ToImmutableArray();
             Commands = BuildCommands(builder).ToImmutableArray();
             Interactions = BuildInteractions(builder).ToImmutableArray();
             Attributes = BuildAttributes(builder).ToImmutableArray();
-        }
-
-        private IEnumerable<SlashModuleInfo> BuildSubModules (SlashModuleBuilder builder, SlashCommandService commandService)
-        {
-            var result = new List<SlashModuleInfo>();
-
-            foreach (var submodule in builder.SubModules)
-                result.Add(submodule.Build(this, commandService));
-
-            return result;
         }
 
         private IEnumerable<SlashCommandInfo> BuildCommands (SlashModuleBuilder builder)

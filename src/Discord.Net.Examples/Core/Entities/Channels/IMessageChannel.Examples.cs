@@ -77,7 +77,7 @@ namespace Discord.Net.Examples.Core.Entities.Channels
 
             var message = await channel.SendMessageAsync(DateTimeOffset.UtcNow.ToString("R"));
             await Task.Delay(TimeSpan.FromSeconds(5))
-                .ContinueWith(x => message.DeleteResponse());
+                .ContinueWith(x => message.DeleteAsync());
 
             #endregion
 

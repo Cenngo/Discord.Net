@@ -86,7 +86,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public Task DeleteResponse(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions options = null)
             => WebhookHelper.DeleteAsync(this, Discord, options);
 
         public override string ToString() => $"Webhook: {Name}:{Id}";

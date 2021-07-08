@@ -60,7 +60,7 @@ namespace Discord
             finally
             {
                 // delete the channel when finished
-                await channel?.DeleteResponse();
+                await channel?.DeleteAsync();
             }
         }
 
@@ -89,7 +89,7 @@ namespace Discord
             finally
             {
                 // delete the channel when done
-                await channel.DeleteResponse();
+                await channel.DeleteAsync();
             }
         }
 
@@ -148,15 +148,15 @@ namespace Discord
                 }
                 finally
                 {
-                    await newText?.DeleteResponse();
+                    await newText?.DeleteAsync();
                 }
             }
             finally
             {
                 // clean up
-                await category?.DeleteResponse();
-                await text?.DeleteResponse();
-                await voice?.DeleteResponse();
+                await category?.DeleteAsync();
+                await text?.DeleteAsync();
+                await voice?.DeleteAsync();
             }
         }
     }

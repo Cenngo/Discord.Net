@@ -49,12 +49,13 @@ namespace Discord
         /// <summary>
         /// Send a response that will remove the thinking animation from the original acknowledgement and displayed to the user
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="isTTS"></param>
-        /// <param name="embeds"></param>
-        /// <param name="allowedMentions"></param>
-        /// <param name="flags"></param>
-        /// <param name="messageComponents"></param>
+        /// <param name="text">Text content of the response</param>
+        /// <param name="isTTS">Determines whether the message should be read aloud by Discord or not.</param>
+        /// <param name="embeds">The embeds to be sent with the response</param>
+        /// <param name="allowedMentions">Specifies if notifications are sent for mentioned users and roles in the message <paramref name="text"/>.
+        /// If <see langword="null"/>, all mentioned roles and users will be notified.</param>
+        /// <param name="flags">Response flags to determine the responses behaviour</param>
+        /// <param name="messageComponents">Message components that will be sent with the response</param>
         /// <param name="options">The options to be used when sending the request</param>
         /// <returns></returns>
         Task PopulateAcknowledgement (string text, bool isTTS, IEnumerable<Embed> embeds, AllowedMentions allowedMentions,
@@ -67,12 +68,13 @@ namespace Discord
         /// If this method is preferred over the "Acknowledge, Modify" method, response must be sent right away for the interaction hand-off to be successful,
         /// otherwise an "interction failed" message will be displayed to the user.
         /// </remarks>
-        /// <param name="text"></param>
-        /// <param name="isTTS"></param>
-        /// <param name="embeds"></param>
-        /// <param name="allowedMentions"></param>
-        /// <param name="flags"></param>
-        /// <param name="messageComponents"></param>
+        /// <param name="text">Text content of the response</param>
+        /// <param name="isTTS">Determines whether the message should be read aloud by Discord or not.</param>
+        /// <param name="embeds">The embeds to be sent with the response</param>
+        /// <param name="allowedMentions">Specifies if notifications are sent for mentioned users and roles in the message <paramref name="text"/>.
+        /// If <see langword="null"/>, all mentioned roles and users will be notified.</param>
+        /// <param name="flags">Response flags to determine the responses behaviour</param>
+        /// <param name="messageComponents">Message components that will be sent with the response</param>
         /// <param name="options">The options to be used when sending the request</param>
         /// <returns></returns>
         Task SendResponse (string text, bool isTTS, IEnumerable<Embed> embeds, AllowedMentions allowedMentions,
@@ -81,19 +83,20 @@ namespace Discord
         /// <summary>
         /// Delete the Interaction Response
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="options">The options to be used when sending the request</param>
         /// <returns></returns>
-        new Task DeleteResponse (RequestOptions options);
+        new Task DeleteAsync (RequestOptions options);
 
         /// <summary>
         /// Send a followup message for this interaction
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="isTTS"></param>
-        /// <param name="username"></param>
-        /// <param name="avatarUrl"></param>
-        /// <param name="embeds"></param>
-        /// <param name="allowedMentions"></param>
+        /// <param name="text">Text content of the response</param>
+        /// <param name="isTTS">Determines whether the message should be read aloud by Discord or not.</param>
+        /// <param name="username">override the default username</param>
+        /// <param name="avatarUrl">override the default avatar</param>
+        /// <param name="embeds">The embeds to be sent with the response</param>
+        /// <param name="allowedMentions">Specifies if notifications are sent for mentioned users and roles in the message <paramref name="text"/>.
+        /// If <see langword="null"/>, all mentioned roles and users will be notified.</param>
         /// <param name="options">The options to be used when sending the request</param>
         /// <returns></returns>
         Task<IMessage> SendFollowupAsync (string text, bool isTTS, string username, string avatarUrl, IEnumerable<Embed> embeds,
@@ -102,10 +105,11 @@ namespace Discord
         /// <summary>
         /// Modify an Interaction Followup message
         /// </summary>
-        /// <param name="messageId"></param>
-        /// <param name="text"></param>
-        /// <param name="embeds"></param>
-        /// <param name="allowedMentions"></param>
+        /// <param name="messageId">Id of the followup message that will be modified</param>
+        /// <param name="text">Text content of the response</param>
+        /// <param name="embeds">The embeds to be sent with the response</param>
+        /// <param name="allowedMentions">Specifies if notifications are sent for mentioned users and roles in the message <paramref name="text"/>.
+        /// If <see langword="null"/>, all mentioned roles and users will be notified.</param>
         /// <param name="options">The options to be used when sending the request</param>
         /// <returns></returns>
         Task ModifyFollowup (ulong messageId, string text, IEnumerable<Embed> embeds, AllowedMentions allowedMentions, RequestOptions options);
@@ -113,7 +117,7 @@ namespace Discord
         /// <summary>
         /// Delete an Interaction Followup message
         /// </summary>
-        /// <param name="messageId"></param>
+        /// <param name="messageId">Id of the followup message that will be deleted</param>
         /// <param name="options">The options to be used when sending the request</param>
         /// <returns></returns>
         Task DeleteFollowup (ulong messageId, RequestOptions options);

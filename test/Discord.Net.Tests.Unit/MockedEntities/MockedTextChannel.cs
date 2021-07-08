@@ -52,7 +52,7 @@ namespace Discord
             throw new NotImplementedException();
         }
 
-        public Task DeleteResponse(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions options = null)
         {
             throw new NotImplementedException();
         }

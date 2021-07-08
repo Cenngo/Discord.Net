@@ -55,7 +55,7 @@ namespace Discord.Webhook
             Update(model);
         }
 
-        public Task DeleteResponse(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions options = null)
             => WebhookClientHelper.DeleteAsync(_client, options);
 
         public override string ToString() => $"Webhook: {Name}:{Id}";

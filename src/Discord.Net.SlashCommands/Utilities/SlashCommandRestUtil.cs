@@ -7,6 +7,7 @@ namespace Discord.SlashCommands
 {
     internal static class SlashCommandRestUtil
     {
+        // Parameters
         public static API.ApplicationCommandOption ParseApplicationCommandOption (this SlashParameterInfo parameterInfo)
         {
             var option = new API.ApplicationCommandOption
@@ -30,6 +31,7 @@ namespace Discord.SlashCommands
             return option;
         }
 
+        // Commmands
         public static bool TryParseApplicationCommandParams (this SlashCommandInfo commandInfo, out CreateApplicationCommandParams commandParams)
         {
             if (!string.IsNullOrEmpty(commandInfo.Module?.Name))
@@ -158,9 +160,10 @@ namespace Discord.SlashCommands
             return result;
         }
 
+        // Modules
         public static bool TryParseApplicationCommandParams (this SlashModuleInfo moduleInfo, out CreateApplicationCommandParams commandParams)
         {
-            if (moduleInfo.IsSubModule)
+            if (moduleInfo.Name == null)
             {
                 commandParams = null;
                 return false;

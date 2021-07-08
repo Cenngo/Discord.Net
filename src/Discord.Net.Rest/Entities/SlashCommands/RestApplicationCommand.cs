@@ -69,7 +69,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public async Task DeleteResponse (RequestOptions options = null) =>
+        public async Task DeleteAsync (RequestOptions options = null) =>
             await SlashCommandHelper.DeleteApplicationCommand(Discord, ApplicationId, Id, Guild, options).ConfigureAwait(false);
 
         /// <inheritdoc cref="IApplicationCommand.Modify(string, string, bool, IEnumerable{IApplicationCommandOption}, RequestOptions)"/>
