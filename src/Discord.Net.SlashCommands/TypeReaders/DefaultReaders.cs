@@ -16,8 +16,22 @@ namespace Discord.SlashCommands
         /// <param name="parameter">Parameter to be parsed</param>
         /// <param name="services">Service provider for passing dependencies</param>
         /// <returns>The parse result as an object</returns>
-        public static object PrimitiveReader (ISlashCommandContext ctx, InteractionParameter parameter, IServiceProvider services) =>
-            Convert.ChangeType(parameter.Value, SlashCommandUtility.GetParameterType(parameter.Type));
+        public static object PrimitiveReader (ISlashCommandContext ctx, InteractionParameter parameter, IServiceProvider services)
+        {
+            var paramType = SlashCommandUtility.GetParameterType(parameter.Type);
+
+            object value;
+
+            if (parameter.Value is Optional<object> optional)
+                value = optional.Value;
+            else
+                value = parameter.Value;
+
+            if (value is IConvertible)
+                return Convert.ChangeType(value, paramType);
+            else
+                return value;
+        }
 
         /// <summary>
         /// Default type reader that is used when parsing a <see cref="IUser"/> type

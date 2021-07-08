@@ -38,13 +38,15 @@ namespace Discord.WebSocket
                 throw new ArgumentException($"Provided Interaction Command Model is not a type of {nameof(SocketCommandInteraction)}");
 
             var data = model.Data.Value;
-            command = null;
 
             var optionNames = new List<string>();
             optionNames.Add(data.Name);
 
             if (!data.Options.IsSpecified)
+            {
+                command = optionNames.ToArray();
                 return Enumerable.Empty<InteractionParameter>();
+            }  
 
             var result = new List<InteractionParameter>();
             var children = data.Options.Value;
@@ -54,7 +56,6 @@ namespace Discord.WebSocket
                 foreach (var option in children)
                 {
                     var type = option.Type;
-
                     if (type == ApplicationCommandOptionType.SubCommand || type == ApplicationCommandOptionType.SubCommandGroup)
                     {
                         optionNames.Add(option.Name);
@@ -63,11 +64,7 @@ namespace Discord.WebSocket
                     else
                     {
                         children = null;
-
-                        object value = option.Value;
-
-                        
-                        result.Add(new InteractionParameter(option.Name, value, option.Type));
+                        result.Add(new InteractionParameter(option.Name, option.Value, type));
                     }
                 }
             } while (children != null);
