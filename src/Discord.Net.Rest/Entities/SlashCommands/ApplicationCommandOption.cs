@@ -17,15 +17,17 @@ namespace Discord
         public string Description { get; }
         /// <inheritdoc/>
         public bool IsRequired { get; }
+        /// <inheritdoc cref="IApplicationCommandOption.Choices"/>
         public IReadOnlyDictionary<string, object> Choices { get; }
-
+        /// <inheritdoc cref="IApplicationCommandOption.Options"/>
         public IReadOnlyList<ApplicationCommandOption> Options { get; }
 
+        /// <inheritdoc/>
         IEnumerable<KeyValuePair<string, object>> IApplicationCommandOption.Choices => Choices;
-
+        /// <inheritdoc/>
         IEnumerable<IApplicationCommandOption> IApplicationCommandOption.Options => Options;
 
-        internal ApplicationCommandOption ( Model model, IEnumerable<ApplicationCommandOption> options )
+        private ApplicationCommandOption ( Model model, IEnumerable<ApplicationCommandOption> options )
         {
             Name = model.Name;
             Description = model.Description;

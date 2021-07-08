@@ -9,7 +9,6 @@ namespace Discord.SlashCommands.Builders
     internal static class ModuleClassBuilder
     {
         private static readonly TypeInfo ModuleTypeInfo = typeof(ISlashModuleBase).GetTypeInfo();
-        private static readonly TypeInfo TypeReaderTypeInfo = typeof(ITypeReader).GetTypeInfo();
 
         public static async Task<IEnumerable<TypeInfo>> SearchAsync (Assembly assembly, SlashCommandService commandService)
         {
@@ -275,7 +274,7 @@ namespace Discord.SlashCommands.Builders
             var reader = commandService.TypeReaders[discordType];
 
             if (reader == null)
-                throw new InvalidOperationException($"There is no registered {nameof(ITypeReader)} for type {nameof(type)}");
+                throw new InvalidOperationException($"There is no registered type reader for type {nameof(type)}");
             return reader;
         }
 

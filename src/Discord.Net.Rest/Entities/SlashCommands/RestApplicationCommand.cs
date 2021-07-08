@@ -20,7 +20,7 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public bool DefaultPermission { get; private set; }
         /// <inheritdoc cref="IApplicationCommand.Guild"/>
-        public RestGuild Guild { get; }
+        public IGuild Guild { get; }
 
         /// <summary>
         /// Wheter the command is a Global Command or a Guild Command
@@ -32,14 +32,14 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
 
+        /// <inheritdoc/>
         IEnumerable<IApplicationCommandOption> IApplicationCommand.Options => Options;
-
+        /// <inheritdoc/>
         IGuild IApplicationCommand.Guild => Guild;
 
         internal RestApplicationCommand (BaseDiscordClient discord, ulong id, IGuild guild, Model model) : base(discord, id)
         {
-            if (guild != null)
-                Guild = new RestGuild(discord, guild.Id);
+            Guild = guild;
             ApplicationId = model.ApplicationId;
 
             Update(model);
@@ -70,14 +70,15 @@ namespace Discord.Rest
 
         /// <inheritdoc/>
         public async Task DeleteAsync (RequestOptions options = null) =>
-            await SlashCommandHelper.DeleteApplicationCommand(Discord, ApplicationId, Id, Guild, options).ConfigureAwait(false);
+            await SlashCommandHelper.DeleteApplicationCommand(Discord, Id, Guild, options).ConfigureAwait(false);
 
         /// <inheritdoc cref="IApplicationCommand.Modify(string, string, bool, IEnumerable{IApplicationCommandOption}, RequestOptions)"/>
         public async Task<RestApplicationCommand> Modify (string name, string description, bool defaultPermission = true,
             IEnumerable<IApplicationCommandOption> commandOptions = null, RequestOptions options = null) =>
-            await SlashCommandHelper.ModifyApplicationCommand(Discord, ApplicationId, Id, Guild, name, description, defaultPermission, commandOptions, options)
+            await SlashCommandHelper.ModifyApplicationCommand(Discord, Id, Guild, name, description, defaultPermission, commandOptions, options)
             .ConfigureAwait(false);
 
+        /// <inheritdoc/>
         async Task<IApplicationCommand> IApplicationCommand.Modify (string name, string description, bool defaultPermission,
             IEnumerable<IApplicationCommandOption> commandOptions, RequestOptions options) => await Modify(name,description, defaultPermission, commandOptions, options);
     }

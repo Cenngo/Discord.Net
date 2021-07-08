@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Discord.API
 {
-    [JsonObject(IsReference = true)]
+    [JsonObject(IsReference = true, MemberSerialization = MemberSerialization.OptIn)]
     internal class ApplicationCommandOption
     {
         [JsonProperty("type")]

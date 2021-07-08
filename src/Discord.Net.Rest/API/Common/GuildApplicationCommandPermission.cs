@@ -2,8 +2,11 @@ using Newtonsoft.Json;
 
 namespace Discord.API
 {
-    internal class GuildApplicationCommandPermission : ApplicationCommandPermission
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+    internal class GuildApplicationCommandPermission
     {
+        [JsonProperty("id")]
+        public ulong CommandId { get; set; }
         [JsonProperty("application_id")]
         public ulong ApplicationId { get; set; }
         [JsonProperty("guild_id")]

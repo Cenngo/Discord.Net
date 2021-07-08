@@ -65,13 +65,13 @@ namespace Discord.WebSocket
                 DefaultPermission = model.DefaultPermission.Value;
 
             if(model.Options.IsSpecified)
-                Options = model.Options.Value.Select(x => new ApplicationCommandOption(x, null)).ToList();
+                Options = model.Options.Value.Select(x => ApplicationCommandOption.Create(x, ApplicationCommandOption.MaxOptionDepth)).ToList();
         }
 
         /// <inheritdoc cref="IApplicationCommand.Modify(string, string, bool, IEnumerable{IApplicationCommandOption}, RequestOptions)"/>
         public async Task<RestApplicationCommand> Modify (string name, string description, bool defaultPermission,
             IEnumerable<IApplicationCommandOption> commandOptions, RequestOptions options) =>
-            await SlashCommandHelper.ModifyApplicationCommand(Discord, ApplicationId, Id, Guild, name, description, defaultPermission, commandOptions, options)
+            await SlashCommandHelper.ModifyApplicationCommand(Discord, Id, Guild, name, description, defaultPermission, commandOptions, options)
             .ConfigureAwait(false);
 
         /// <inheritdoc/>
@@ -89,7 +89,7 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public async Task DeleteAsync (RequestOptions options = null) =>
-            await SlashCommandHelper.DeleteApplicationCommand(Discord, ApplicationId, Id, Guild, options).ConfigureAwait(false);
+            await SlashCommandHelper.DeleteApplicationCommand(Discord, Id, Guild, options).ConfigureAwait(false);
 
         /// <inheritdoc/>
         async Task<IApplicationCommand> IApplicationCommand.Modify (string name, string description, bool defaultPermission,

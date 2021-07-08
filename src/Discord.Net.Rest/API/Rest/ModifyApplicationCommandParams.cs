@@ -4,7 +4,6 @@ namespace Discord.API.Rest
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class ModifyApplicationCommandParams
-
     {
         [JsonProperty("name")]
         public string Name { get; set; }

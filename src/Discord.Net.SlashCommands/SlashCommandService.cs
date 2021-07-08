@@ -6,7 +6,6 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -165,14 +164,14 @@ namespace Discord.SlashCommands
 
             if (deleteMissing)
             {
-                var existing = await Rest.SlashCommandHelper.GetApplicationCommands(Client, _applicationId, guild, null);
+                var existing = await Rest.SlashCommandHelper.GetApplicationCommands(Client, guild, null);
 
                 var missing = existing.Where(x => !creationParams.Any(y => y.Name == x.Name));
 
                 if (missing != null)
                     foreach (var command in missing)
                     {
-                        await Rest.SlashCommandHelper.DeleteApplicationCommand(Client, _applicationId, command.Id, guild, null).ConfigureAwait(false);
+                        await Rest.SlashCommandHelper.DeleteApplicationCommand(Client, command.Id, guild, null).ConfigureAwait(false);
                         existing.ToList().Remove(command);
                     }
             }
@@ -340,7 +339,7 @@ namespace Discord.SlashCommands
         /// </remarks>
         /// <param name="discordParamType">The Application Commands API type this reader will be used for</param>
         /// <param name="reader">Type Reader function</param>
-        public void ReplaceTypeReader (ApplicationCommandOptionType discordParamType, Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object> reader ) =>
+        public void ReplaceTypeReader (ApplicationCommandOptionType discordParamType, Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object> reader) =>
             _typeReaders[discordParamType] = reader;
 
         public void Dispose ( ) => throw new NotImplementedException();

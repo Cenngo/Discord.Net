@@ -12,16 +12,35 @@ namespace Discord.SlashCommands
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
     public class SlashGroupAttribute : Attribute
     {
+        /// <summary>
+        /// Name of the group
+        /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// Desription of the group
+        /// </summary>
         public string Description { get; }
 
+        /// <summary>
+        /// Tag a class or a method as a group
+        /// </summary>
+        /// <remarks>
+        /// If the description field is already filled for a <see cref="SlashGroupAttribute"/> with the same name, description value of this can be left empty
+        /// </remarks>
+        /// <param name="name">Name of the group</param>
+        /// <param name="description">Description of the group</param>
         public SlashGroupAttribute (string name, string description)
         {
             Name = name;
             Description = description;
         }
 
-        public SlashGroupAttribute(string name)
+        /// <summary>
+        /// Tag a class or a method as a group
+        /// </summary>
+        /// <param name="name">Name of the group</param>
+        public SlashGroupAttribute (string name)
         {
             Name = name;
         }

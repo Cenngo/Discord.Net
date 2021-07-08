@@ -1,13 +1,12 @@
 using Discord.SlashCommands.Builders;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Discord.API;
-using Discord.WebSocket;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 
 namespace Discord.SlashCommands
 {
@@ -67,7 +66,8 @@ namespace Discord.SlashCommands
             _action = builder.Callback;
         }
 
-        public async Task<IResult> ExecuteAsync (ISlashCommandContext context, IServiceProvider services )
+        /// <inheritdoc/>
+        public async Task<IResult> ExecuteAsync (ISlashCommandContext context, IServiceProvider services)
         {
             if (context.Interaction is SocketCommandInteraction commandInteraction)
                 return await ExecuteAsync(context, Parameters, commandInteraction.Data, services);
@@ -75,7 +75,7 @@ namespace Discord.SlashCommands
                 return ExecuteResult.FromError(SlashCommandError.ParseFailed, $"Provided {nameof(ISlashCommandContext)} belongs to a message component");
         }
 
-        public async Task<IResult> ExecuteAsync(ISlashCommandContext context, IEnumerable<SlashParameterInfo> paramList,
+        public async Task<IResult> ExecuteAsync (ISlashCommandContext context, IEnumerable<SlashParameterInfo> paramList,
             IEnumerable<InteractionParameter> argList, IServiceProvider services)
         {
             services = services ?? EmptyServiceProvider.Instance;
@@ -102,7 +102,7 @@ namespace Discord.SlashCommands
             }
         }
 
-        private async Task<IResult> ExecuteInternalAsync ( ISlashCommandContext context, object[] args, IServiceProvider services )
+        private async Task<IResult> ExecuteInternalAsync (ISlashCommandContext context, object[] args, IServiceProvider services)
         {
             await Module.CommandService._cmdLogger.DebugAsync($"Executing {GetLogString(context)}").ConfigureAwait(false);
 
@@ -110,14 +110,14 @@ namespace Discord.SlashCommands
             {
                 var task = _action(context, args, services, this);
 
-                if(task is Task<IResult> resultTask)
+                if (task is Task<IResult> resultTask)
                 {
                     var result = await resultTask.ConfigureAwait(false);
                     await Module.CommandService._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
                     if (result is RuntimeResult execResult)
                         return execResult;
                 }
-                else if(task is Task<ExecuteResult> execTask)
+                else if (task is Task<ExecuteResult> execTask)
                 {
                     var result = await execTask.ConfigureAwait(false);
                     await Module.CommandService._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
@@ -166,11 +166,11 @@ namespace Discord.SlashCommands
             var args = argList?.ToList();
             var result = new List<object>();
 
-            foreach(var parameter in paramList)
+            foreach (var parameter in paramList)
             {
                 var arg = args?.FirstOrDefault(x => string.Equals(x.Name, parameter.Name, StringComparison.OrdinalIgnoreCase));
 
-                if(arg == null || arg == default)
+                if (arg == null || arg == default)
                 {
                     if (parameter.IsRequired)
                         throw new InvalidOperationException("Command was invoked with too few parameters");
@@ -181,18 +181,22 @@ namespace Discord.SlashCommands
                 {
                     if (parameter.Attributes.Any(x => x is ParamArrayAttribute))
                         foreach (var remaining in args)
+                        {
                             result.Add(parameter.TypeReader(context, remaining, services));
+                            args?.Remove(arg);
+                        }    
                     else
+                    {
                         result.Add(parameter.TypeReader(context, arg, services));
-
-                    args?.Remove(arg);
+                        args?.Remove(arg);
+                    }
                 }
             }
 
             return result.ToArray();
         }
 
-        private string GetLogString ( ISlashCommandContext context)
+        private string GetLogString (ISlashCommandContext context)
         {
             if (context.Guild != null)
                 return $"\"{Name}\" for {context.User} in {context.Guild}/{context.Channel}";

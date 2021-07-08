@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 
 namespace Discord.API
 {
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class ApplicationCommandOptionChoice
     {
         [JsonProperty("name")]

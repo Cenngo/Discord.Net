@@ -1,12 +1,9 @@
 using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using System;
 
 namespace Discord.API.Rest
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class CreateApplicationCommandParams
-
     {
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -17,7 +14,7 @@ namespace Discord.API.Rest
         [JsonProperty("default_permission")]
         public Optional<bool> DefaultPermission { get; set; }
 
-        public CreateApplicationCommandParams (string name, string description )
+        public CreateApplicationCommandParams (string name, string description)
         {
             Preconditions.SlashCommandName(name, nameof(name));
             Preconditions.SlashCommandDescription(description, nameof(description));
