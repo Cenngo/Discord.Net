@@ -45,6 +45,7 @@ namespace Discord.SlashCommands
         /// Parameter type that will be registered to Discord if applicable
         /// </summary>
         public ApplicationCommandOptionType DiscordOptionType => SlashCommandUtility.GetDiscordOptionType(ParameterType);
+        public Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object> TypeReader { get; }
 
         internal SlashParameterInfo (SlashParameterBuilder builder, SlashCommandInfo command)
         {
@@ -56,6 +57,7 @@ namespace Discord.SlashCommands
             DefaultValue = builder.DefaultValue;
             Choices = builder.Choices;
             Attributes = builder.Attributes;
+            TypeReader = builder.TypeReader;
         }
 
         public override string ToString ( ) => Name;

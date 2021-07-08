@@ -140,7 +140,7 @@ namespace Discord.Webhook
         /// <summary> Deletes this webhook from Discord and disposes the client. </summary>
         public async Task DeleteWebhookAsync(RequestOptions options = null)
         {
-            await Webhook.DeleteAsync(options).ConfigureAwait(false);
+            await Webhook.DeleteResponse(options).ConfigureAwait(false);
             Dispose();
         }
 

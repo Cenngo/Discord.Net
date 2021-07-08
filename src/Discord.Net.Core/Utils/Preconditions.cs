@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Discord
@@ -300,7 +301,7 @@ namespace Discord
         {
             msg ??= "Application command names must be contain all lower case characters and between 1-32 characters length.";
 
-            if (!Regex.IsMatch(name, @"^[\w-]{1,32}$"))
+            if (!Regex.IsMatch(name, @"^[\w-]{1,32}$") || value.Any(char.IsUpper))
                 throw new ArgumentException(message: msg, paramName: name);
         }
 

@@ -71,7 +71,7 @@ namespace Discord.Rest
             Update(model);
         }
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteResponse(RequestOptions options = null)
             => ChannelHelper.DeleteAsync(this, Discord, options);
 
         /// <summary>

@@ -1,14 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Discord
 {
+    /// <summary>
+    /// Interaction Response flags
+    /// </summary>
     [Flags]
     public enum InteractionApplicationCommandCallbackFlags
     {
-        Ephemeral = 1<<6
+        /// <summary>
+        /// Only the author can see the Interaction Response
+        /// </summary>
+        Ephemeral = 1 << 6
     }
 }

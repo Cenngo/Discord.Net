@@ -1,8 +1,3 @@
-using Discord.SlashCommands;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Discord.SlashCommands
 {
     public interface IResult

@@ -9,7 +9,7 @@ namespace Discord.Rest
     /// <summary>
     /// Represents a REST-based Application Command
     /// </summary>
-    public class RestApplicationCommand : RestEntity<ulong>, IApplicationCommand, IUpdateable
+    public class RestApplicationCommand : RestEntity<ulong>, IApplicationCommand
     {
         /// <inheritdoc/>
         public string Name { get; private set; }
@@ -19,14 +19,17 @@ namespace Discord.Rest
         public ulong ApplicationId { get; }
         /// <inheritdoc/>
         public bool DefaultPermission { get; private set; }
-        /// <summary>
-        /// Get the guild this command belongs to if the command is a Guild Command
-        /// </summary>
+        /// <inheritdoc cref="IApplicationCommand.Guild"/>
         public RestGuild Guild { get; }
+
+        /// <summary>
+        /// Wheter the command is a Global Command or a Guild Command
+        /// </summary>
         public bool IsGlobal => Guild == null;
 
+        /// <inheritdoc cref="IApplicationCommand.Options"/>
         public IReadOnlyList<IApplicationCommandOption> Options { get; private set; }
-
+        /// <inheritdoc/>
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
 
         IEnumerable<IApplicationCommandOption> IApplicationCommand.Options => Options;
@@ -60,9 +63,22 @@ namespace Discord.Rest
             if (IsGlobal)
                 model = await Discord.ApiClient.GetGlobalApplicationCommand(ApplicationId, Id, options).ConfigureAwait(false);
             else
-                model = await Discord.ApiClient.GetGuildApplicationCommand(ApplicationId, Guild.Id, Id, options);
+                model = await Discord.ApiClient.GetGuildApplicationCommand(ApplicationId, Guild.Id, Id, options).ConfigureAwait(false);
 
             Update(model);
         }
+
+        /// <inheritdoc/>
+        public async Task DeleteResponse (RequestOptions options = null) =>
+            await SlashCommandHelper.DeleteApplicationCommand(Discord, ApplicationId, Id, Guild, options).ConfigureAwait(false);
+
+        /// <inheritdoc cref="IApplicationCommand.Modify(string, string, bool, IEnumerable{IApplicationCommandOption}, RequestOptions)"/>
+        public async Task<RestApplicationCommand> Modify (string name, string description, bool defaultPermission = true,
+            IEnumerable<IApplicationCommandOption> commandOptions = null, RequestOptions options = null) =>
+            await SlashCommandHelper.ModifyApplicationCommand(Discord, ApplicationId, Id, Guild, name, description, defaultPermission, commandOptions, options)
+            .ConfigureAwait(false);
+
+        async Task<IApplicationCommand> IApplicationCommand.Modify (string name, string description, bool defaultPermission,
+            IEnumerable<IApplicationCommandOption> commandOptions, RequestOptions options) => await Modify(name,description, defaultPermission, commandOptions, options);
     }
 }

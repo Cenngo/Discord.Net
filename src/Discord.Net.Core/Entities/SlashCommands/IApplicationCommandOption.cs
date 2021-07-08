@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Discord
 {
     /// <summary>
-    /// Represents an Application Command Option
+    /// Represents an Application Command Option, this may be a Sub-Command, a Sub-Command group or a command parameter
     /// </summary>
     public interface IApplicationCommandOption
     {
@@ -26,7 +26,15 @@ namespace Discord
         /// <see langword="false"/> by default for types <see cref="ApplicationCommandOptionType.SubCommand"/> and <see cref="ApplicationCommandOptionType.SubCommandGroup"/>
         /// </remarks>
         bool IsRequired { get; }
+
+        /// <summary>
+        /// The collection of Dev-defined choices for this option, if this option is a parameter
+        /// </summary>
         IEnumerable<KeyValuePair<string, object>> Choices { get; }
+
+        /// <summary>
+        /// The collection of Sub-Commands and Sub-Command Groups, null if this option is a command parameter
+        /// </summary>
         IEnumerable<IApplicationCommandOption> Options { get; }
     }
 }

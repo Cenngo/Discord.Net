@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -43,6 +44,7 @@ namespace Discord.SlashCommands
         private readonly HashSet<SlashModuleInfo> _moduleDefs;
         private readonly SemaphoreSlim _lock;
         private readonly ulong _applicationId;
+        private readonly ConcurrentDictionary<ApplicationCommandOptionType, Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object>> _typeReaders;
         internal readonly Logger _cmdLogger;
         internal readonly LogManager _logManager;
 
@@ -62,6 +64,8 @@ namespace Discord.SlashCommands
         /// Represents all of the Interaction handlers that are loaded in the <see cref="SlashCommandService"/>
         /// </summary>
         public IReadOnlyCollection<SlashInteractionInfo> Interacions => _moduleDefs.SelectMany(x => x.Interactions).ToList();
+
+        public IReadOnlyDictionary<ApplicationCommandOptionType, Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object>> TypeReaders => _typeReaders;
 
         /// <summary>
         /// Client that the Application Commands will be registered for
@@ -84,6 +88,7 @@ namespace Discord.SlashCommands
             _lock = new SemaphoreSlim(1, 1);
             _typedModuleDefs = new ConcurrentDictionary<Type, SlashModuleInfo>();
             _moduleDefs = new HashSet<SlashModuleInfo>();
+            _typeReaders = new ConcurrentDictionary<ApplicationCommandOptionType, Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object>>();
 
             _logManager = new LogManager(LogSeverity.Debug);
             _logManager.Message += async msg => await _logEvent.InvokeAsync(msg).ConfigureAwait(false);
@@ -97,6 +102,8 @@ namespace Discord.SlashCommands
 
             _runAsync = config.RunAsync;
             _throwOnError = config.ThrowOnError;
+
+            DefaultReaders.CreateDefaultTypeReaders(_typeReaders);
         }
 
         /// <summary>
@@ -287,22 +294,22 @@ namespace Discord.SlashCommands
         /// <param name="input">Command string that will be used to parse the <see cref="SlashCommandInfo"/></param>
         /// <param name="services">Services that will be injected into the declaring type</param>
         /// <returns></returns>
-        public async Task ExecuteCommandAsync (ISlashCommandContext context, string input, IServiceProvider services)
+        public async Task ExecuteCommandAsync (ISlashCommandContext context, string[] input, IServiceProvider services)
         {
             services = services ?? EmptyServiceProvider.Instance;
 
-            var command = _commandMap.GetCommands(input).First();
+            var command = _commandMap.GetCommands(string.Join(" ", input)).First();
 
             if (command == null)
             {
-                await _cmdLogger.DebugAsync($"Unknown slash command, skipping execution ({input.ToUpper()})");
+                await _cmdLogger.DebugAsync($"Unknown slash command, skipping execution ({string.Join(" ", input).ToUpper()})");
                 return;
             }
             await command.ExecuteAsync(context, services).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 
+        /// Use to execute an Interaction Handler from a <see cref="IDiscordInteractable.CustomId"/>
         /// </summary>
         /// <param name="context">A command context that will be used to execute the command, <see cref="ISlashCommandContext.Interaction"/>
         /// must be type of <see cref="SocketMessageInteraction"/></param>
@@ -324,6 +331,17 @@ namespace Discord.SlashCommands
             }
             await command.ExecuteAsync(context, services).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Replace a default type reader
+        /// </summary>
+        /// <remarks>
+        /// Must be used before the module discovery
+        /// </remarks>
+        /// <param name="discordParamType">The Application Commands API type this reader will be used for</param>
+        /// <param name="reader">Type Reader function</param>
+        public void ReplaceTypeReader (ApplicationCommandOptionType discordParamType, Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object> reader ) =>
+            _typeReaders[discordParamType] = reader;
 
         public void Dispose ( ) => throw new NotImplementedException();
     }

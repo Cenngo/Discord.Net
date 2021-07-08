@@ -46,7 +46,7 @@ namespace Discord.Rest
             await Discord.ApiClient.LeaveGuildAsync(Id, options).ConfigureAwait(false);
         }
         /// <inheritdoc />
-        public async Task DeleteAsync(RequestOptions options = null)
+        public async Task DeleteResponse(RequestOptions options = null)
         {
             await Discord.ApiClient.DeleteGuildAsync(Id, options).ConfigureAwait(false);
         }

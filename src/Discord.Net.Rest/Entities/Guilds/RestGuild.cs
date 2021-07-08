@@ -214,7 +214,7 @@ namespace Discord.Rest
         public async Task UpdateAsync(bool withCounts, RequestOptions options = null)
             => Update(await Discord.ApiClient.GetGuildAsync(Id, withCounts, options).ConfigureAwait(false));
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteResponse(RequestOptions options = null)
             => GuildHelper.DeleteAsync(this, Discord, options);
 
         /// <inheritdoc />

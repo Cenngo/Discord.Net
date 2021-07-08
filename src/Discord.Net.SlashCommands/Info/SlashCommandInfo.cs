@@ -76,13 +76,13 @@ namespace Discord.SlashCommands
         }
 
         public async Task<IResult> ExecuteAsync(ISlashCommandContext context, IEnumerable<SlashParameterInfo> paramList,
-            IEnumerable<SocketInteractionParameter> argList, IServiceProvider services)
+            IEnumerable<InteractionParameter> argList, IServiceProvider services)
         {
             services = services ?? EmptyServiceProvider.Instance;
 
             try
             {
-                object[] args = GenerateArgs(paramList, argList);
+                object[] args = GenerateArgs(context, paramList, argList, services);
 
                 if (CommandService._runAsync)
                 {
@@ -160,26 +160,11 @@ namespace Discord.SlashCommands
             }
         }
 
-        private object[] GenerateArgs (IEnumerable<SlashParameterInfo> paramList, IEnumerable<SocketInteractionParameter> argList )
+        private object[] GenerateArgs (ISlashCommandContext context, IEnumerable<SlashParameterInfo> paramList, IEnumerable<InteractionParameter> argList,
+            IServiceProvider services)
         {
             var args = argList?.ToList();
             var result = new List<object>();
-
-            void AddValue(SocketInteractionParameter param)
-            {
-                var type = param.Type;
-                object value;
-
-                if (param.Value is Optional<object> optional)
-                    value = optional.Value;
-                else
-                    value = param.Value;
-
-                if (value is IConvertible)
-                    result.Add(Convert.ChangeType(value, type));
-                else
-                    result.Add(value);
-            }
 
             foreach(var parameter in paramList)
             {
@@ -196,9 +181,9 @@ namespace Discord.SlashCommands
                 {
                     if (parameter.Attributes.Any(x => x is ParamArrayAttribute))
                         foreach (var remaining in args)
-                            AddValue(remaining);
+                            result.Add(parameter.TypeReader(context, remaining, services));
                     else
-                        AddValue(arg);
+                        result.Add(parameter.TypeReader(context, arg, services));
 
                     args?.Remove(arg);
                 }

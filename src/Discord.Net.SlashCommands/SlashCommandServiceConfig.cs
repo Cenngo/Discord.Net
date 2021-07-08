@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Discord.SlashCommands
 {
     public class SlashCommandServiceConfig
     {
+        public LogSeverity LogLevel { get; } = LogSeverity.Info;
         public bool RunAsync { get; set; } = true;
-        public bool ThrowOnError { get; set; } = false;
+        public bool ThrowOnError { get; set; } = true;
+        public char InteractionCustomIdDelimiter = ',';
     }
 }

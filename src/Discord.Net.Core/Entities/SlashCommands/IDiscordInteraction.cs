@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Discord
@@ -37,5 +38,84 @@ namespace Discord
         /// Get the Snowflake ID of the application this interaction was issued to
         /// </summary>
         internal ulong ApplicationId { get; }
+
+        /// <summary>
+        /// Send an acknowledgement to verify the handoff
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        Task AcknowledgeAsync (RequestOptions options);
+
+        /// <summary>
+        /// Send a response that will remove the thinking animation from the original acknowledgement and displayed to the user
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="isTTS"></param>
+        /// <param name="embeds"></param>
+        /// <param name="allowedMentions"></param>
+        /// <param name="flags"></param>
+        /// <param name="messageComponents"></param>
+        /// <param name="options">The options to be used when sending the request</param>
+        /// <returns></returns>
+        Task PopulateAcknowledgement (string text, bool isTTS, IEnumerable<Embed> embeds, AllowedMentions allowedMentions,
+            InteractionApplicationCommandCallbackFlags flags, IEnumerable<MessageComponent> messageComponents, RequestOptions options);
+
+        /// <summary>
+        /// Send a response that will be directly shown to the user without displaying the "Thinking" animation
+        /// </summary>
+        /// <remarks>
+        /// If this method is preferred over the "Acknowledge, Modify" method, response must be sent right away for the interaction hand-off to be successful,
+        /// otherwise an "interction failed" message will be displayed to the user.
+        /// </remarks>
+        /// <param name="text"></param>
+        /// <param name="isTTS"></param>
+        /// <param name="embeds"></param>
+        /// <param name="allowedMentions"></param>
+        /// <param name="flags"></param>
+        /// <param name="messageComponents"></param>
+        /// <param name="options">The options to be used when sending the request</param>
+        /// <returns></returns>
+        Task SendResponse (string text, bool isTTS, IEnumerable<Embed> embeds, AllowedMentions allowedMentions,
+            InteractionApplicationCommandCallbackFlags flags, IEnumerable<MessageComponent> messageComponents, RequestOptions options);
+
+        /// <summary>
+        /// Delete the Interaction Response
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        new Task DeleteResponse (RequestOptions options);
+
+        /// <summary>
+        /// Send a followup message for this interaction
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="isTTS"></param>
+        /// <param name="username"></param>
+        /// <param name="avatarUrl"></param>
+        /// <param name="embeds"></param>
+        /// <param name="allowedMentions"></param>
+        /// <param name="options">The options to be used when sending the request</param>
+        /// <returns></returns>
+        Task<IMessage> SendFollowupAsync (string text, bool isTTS, string username, string avatarUrl, IEnumerable<Embed> embeds,
+            AllowedMentions allowedMentions, RequestOptions options);
+
+        /// <summary>
+        /// Modify an Interaction Followup message
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="text"></param>
+        /// <param name="embeds"></param>
+        /// <param name="allowedMentions"></param>
+        /// <param name="options">The options to be used when sending the request</param>
+        /// <returns></returns>
+        Task ModifyFollowup (ulong messageId, string text, IEnumerable<Embed> embeds, AllowedMentions allowedMentions, RequestOptions options);
+
+        /// <summary>
+        /// Delete an Interaction Followup message
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="options">The options to be used when sending the request</param>
+        /// <returns></returns>
+        Task DeleteFollowup (ulong messageId, RequestOptions options);
     }
 }

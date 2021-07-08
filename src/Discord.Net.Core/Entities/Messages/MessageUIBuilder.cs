@@ -12,14 +12,15 @@ namespace Discord
 
         public MessageUIBuilder ( ) { }
 
-        public void AddRow (params IMessageComponent[] components)
+        public MessageUIBuilder AddRow (params IMessageComponent[] components)
         {
             CheckRows(components);
 
             _rows.Add(components.ToList());
+            return this;
         }
 
-        public void ModifyRow (int index, IEnumerable<IMessageComponent> components)
+        public MessageUIBuilder ModifyRow (int index, IEnumerable<IMessageComponent> components)
         {
             if (index > 5 || index > _rows.Count - 1 || index < 0)
                 throw new InvalidOperationException("Index is out of bounds");
@@ -27,6 +28,7 @@ namespace Discord
             CheckRows(components);
 
             _rows[index] = components.ToList();
+            return this;
         }
 
         private void CheckRows (IEnumerable<IMessageComponent> components)
@@ -41,16 +43,22 @@ namespace Discord
                 throw new InvalidOperationException("A row cannot contain more than 5 buttons.");
         }
 
-        public void RemoveRow (int index)
+        public MessageUIBuilder RemoveRow (int index)
         {
             if (index > 5 || index > _rows.Count - 1 || index < 0)
                 throw new InvalidOperationException("Index is out of bounds (Max row count can be 5).");
 
             _rows.RemoveAt(index);
+            return this;
         }
 
-        public MessageUI Build ( ) =>
-            new MessageUI(this);
+        public IReadOnlyList<MessageActionRowComponent> Build ( )
+        {
+            var result = new List<MessageActionRowComponent>();
+            foreach (var row in Rows)
+                result.Add(new MessageActionRowComponent(row.Cast<MessageComponent>()));
+            return result;
+        }
     }
 
     public class SelectMenuBuilder

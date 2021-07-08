@@ -2,7 +2,7 @@ using System;
 
 namespace Discord
 {
-    public static class SlashCommandUtility
+    internal static class SlashCommandUtility
     {
         public static ApplicationCommandOptionType GetDiscordOptionType (Type type)
         {
@@ -18,7 +18,7 @@ namespace Discord
                 return ApplicationCommandOptionType.Channel;
             else if (typeof(IUser).IsAssignableFrom(type))
                 return ApplicationCommandOptionType.User;
-            else if (typeof(IMentionable).IsAssignableFrom(type))
+            else if (typeof(IMentionable).IsAssignableFrom(type)) // Use only a fallback, since Role, Channel and User entities are all Mentionables
                 return ApplicationCommandOptionType.Mentionable;
             else
                 throw new ArgumentException("Type of parameter supplied is not supported by Discord");

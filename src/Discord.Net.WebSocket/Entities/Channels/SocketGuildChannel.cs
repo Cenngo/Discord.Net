@@ -77,7 +77,7 @@ namespace Discord.WebSocket
         public Task ModifyAsync(Action<GuildChannelProperties> func, RequestOptions options = null)
             => ChannelHelper.ModifyAsync(this, Discord, func, options);
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteResponse(RequestOptions options = null)
             => ChannelHelper.DeleteAsync(this, Discord, options);
 
         /// <summary>

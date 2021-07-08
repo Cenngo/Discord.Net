@@ -17,6 +17,8 @@ namespace Discord.SlashCommands.Builders
         public IReadOnlyList<ParameterChoice> Choices => _choices;
         public IReadOnlyList<Attribute> Attributes => _attributes;
 
+        public Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object> TypeReader { get; internal set; }
+
         internal SlashParameterBuilder (SlashCommandBuilder command)
         {
             Command = command;

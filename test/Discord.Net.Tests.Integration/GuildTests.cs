@@ -81,7 +81,7 @@ namespace Discord
                 await guild.ModifyAsync(x => x.SystemChannel = null);
             });
 
-            await systemChannel.DeleteAsync();
+            await systemChannel.DeleteResponse();
         }
         /// <summary>
         ///     Checks that the AFK channel of a guild can be set.
@@ -108,7 +108,7 @@ namespace Discord
                 await guild.ModifyAsync(x => x.AfkChannel = null);
             });
 
-            await afkChannel.DeleteAsync();
+            await afkChannel.DeleteResponse();
         }
     }
 }

@@ -1,5 +1,8 @@
 namespace Discord
 {
+    /// <summary>
+    /// Type Message Components
+    /// </summary>
     public enum MessageComponentType
     {
         ActionRow = 1,

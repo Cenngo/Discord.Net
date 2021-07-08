@@ -172,7 +172,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteResponse(RequestOptions options = null)
             => MessageHelper.DeleteAsync(this, Discord, options);
 
         /// <summary>

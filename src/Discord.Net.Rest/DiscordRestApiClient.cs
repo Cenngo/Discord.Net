@@ -1489,6 +1489,9 @@ namespace Discord.API
         public async Task<ApplicationCommand> CreateGlobalApplicationCommand(ulong applicationId, CreateApplicationCommandParams args,
             RequestOptions options = null)
         {
+            Preconditions.SlashCommandName(args.Name, nameof(args.Name));
+            Preconditions.SlashCommandDescription(args.Description, nameof(args.Description));
+
             options = RequestOptions.CreateOrClone(options);
 
             return await SendJsonAsync<ApplicationCommand>("POST", ( ) => $"applications/{applicationId}/commands", args,
@@ -1504,6 +1507,9 @@ namespace Discord.API
         public async Task<ApplicationCommand> EditGlobalApplicationCommand (ulong applicationId, ulong commandId, ModifyApplicationCommandParams args,
             RequestOptions options = null )
         {
+            Preconditions.SlashCommandName(args.Name, nameof(args.Name));
+            Preconditions.SlashCommandDescription(args.Description, nameof(args.Description));
+
             options = RequestOptions.CreateOrClone(options);
 
             return await SendJsonAsync<ApplicationCommand>("PATCH", ( ) => $"applications/{applicationId}/commands/{commandId}", args,
@@ -1527,6 +1533,12 @@ namespace Discord.API
         public async Task<IReadOnlyCollection<ApplicationCommand>> BulkOverwriteGlobalApplicationCommands (ulong applicationId,
             IEnumerable<ApplicationCommand> args, RequestOptions options )
         {
+            foreach(var commmand in args)
+            {
+                Preconditions.SlashCommandName(commmand.Name, nameof(commmand.Name));
+                Preconditions.SlashCommandDescription(commmand.Description, nameof(commmand.Description));
+            }
+
             options = RequestOptions.CreateOrClone(options);
 
             return await SendJsonAsync<IReadOnlyCollection<ApplicationCommand>>("PUT", ( ) => $"/applications/{applicationId}/commands", args, new BucketIds(), options: options)
@@ -1535,6 +1547,9 @@ namespace Discord.API
         public async Task<ApplicationCommand> CreateGuildApplicationCommand (ulong applicationId, ulong guildId, CreateApplicationCommandParams args,
             RequestOptions options = null)
         {
+            Preconditions.SlashCommandName(args.Name, nameof(args.Name));
+            Preconditions.SlashCommandDescription(args.Description, nameof(args.Description));
+
             options = RequestOptions.CreateOrClone(options);
 
             var ids = new BucketIds(guildId: guildId);
@@ -1552,6 +1567,9 @@ namespace Discord.API
         public async Task<ApplicationCommand> EditApplicationCommand(ulong applicationId, ulong guildId, ulong commandId,
             ModifyApplicationCommandParams args, RequestOptions options = null)
         {
+            Preconditions.SlashCommandName(args.Name, nameof(args.Name));
+            Preconditions.SlashCommandDescription(args.Description, nameof(args.Description));
+
             options = RequestOptions.CreateOrClone(options);
 
             var ids = new BucketIds(guildId: guildId);
@@ -1569,14 +1587,20 @@ namespace Discord.API
         public async Task<IReadOnlyCollection<ApplicationCommand>> BulkOverwriteGuildApplicationCommands (ulong applicationId, ulong guildId,
             IEnumerable<ApplicationCommand> args, RequestOptions options = null)
         {
+            foreach (var commmand in args)
+            {
+                Preconditions.SlashCommandName(commmand.Name, nameof(commmand.Name));
+                Preconditions.SlashCommandDescription(commmand.Description, nameof(commmand.Description));
+            }
+
             options = RequestOptions.CreateOrClone(options);
 
             var ids = new BucketIds(guildId: guildId);
             return await SendJsonAsync<IReadOnlyCollection<ApplicationCommand>>("PUT", ( ) => $"applications/{applicationId}/guilds/{guildId}/commands",
                 args, ids, options: options).ConfigureAwait(false);
         }
-        public async Task<IReadOnlyCollection<GuildApplicationCommandPermission>>
-            GetGuildApplicationCommandPermissions (ulong applicationId, ulong guildId, RequestOptions options = null)
+        public async Task<IReadOnlyCollection<GuildApplicationCommandPermission>> GetGuildApplicationCommandPermissions (ulong applicationId,
+            ulong guildId, RequestOptions options = null)
         {
             options = RequestOptions.CreateOrClone(options);
 
@@ -1618,15 +1642,7 @@ namespace Discord.API
         {
             options = RequestOptions.CreateOrClone(options);
 
-            try
-            {
-                await SendJsonAsync("POST", ( ) => $"interactions/{interactionId}/{interactionToken}/callback", args, new BucketIds(), options: options).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
+            await SendJsonAsync("POST", ( ) => $"interactions/{interactionId}/{interactionToken}/callback", args, new BucketIds(), options: options).ConfigureAwait(false);
         }
         public async Task<InteractionResponse> GetOriginalInteractionResponse (ulong applicationId, string interactionToken, RequestOptions options = null)
         {

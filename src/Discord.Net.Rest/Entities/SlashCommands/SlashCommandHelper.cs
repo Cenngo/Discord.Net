@@ -51,7 +51,7 @@ namespace Discord.Rest
         }
 
         public static async Task<RestApplicationCommand> ModifyApplicationCommand (BaseDiscordClient discord, ulong applicationId, ulong commandId,
-            IGuild guild, string name, string description, bool defaultPermission, IEnumerable<ApplicationCommandOption> commandOptions, RequestOptions options)
+            IGuild guild, string name, string description, bool defaultPermission, IEnumerable<IApplicationCommandOption> commandOptions, RequestOptions options)
         {
             var args = new ModifyApplicationCommandParams(name, description)
             {
@@ -105,7 +105,7 @@ namespace Discord.Rest
         #endregion
 
         #region InteractionResponse
-        public static async Task SendInteractionResponse (BaseDiscordClient discord, IDiscordInteraction interaction, InteractionCallbackType type,
+        public static async Task SendInteractionResponse (BaseDiscordClient discord, IDiscordInteraction interaction,
             string text, bool isTTS, IEnumerable<Embed> embeds, AllowedMentions allowedMentions, IEnumerable<MessageComponent> messageComponents,
             InteractionApplicationCommandCallbackFlags flags,
             RequestOptions options)
@@ -128,7 +128,22 @@ namespace Discord.Rest
                 Components = messageComponents?.Select(x => x?.ToModel()).ToArray()
             };
 
-            var args = new CreateInteractionResponseParams(type)
+            InteractionCallbackType callbackType;
+            switch (interaction.InteractionType)
+            {
+                case InteractionType.Ping:
+                    throw new InvalidOperationException($"Interaction type {nameof(InteractionType.Ping)} only supports acknowledgement as a response.");
+                case InteractionType.ApplicationCommand:
+                    callbackType = InteractionCallbackType.ChannelMessageWithSource;
+                    break;
+                case InteractionType.MessageComponent:
+                    callbackType = InteractionCallbackType.UpdateMessage;
+                    break;
+                default:
+                    throw new ArgumentException($"Interaction type {nameof(interaction.InteractionType)} is not supported for sending a response");
+            }
+
+            var args = new CreateInteractionResponseParams(callbackType)
             {
                 Data = data
             };
@@ -172,10 +187,7 @@ namespace Discord.Rest
             if (!response.Data.IsSpecified)
                 return new InteractionResponse(response.Type);
             else
-            {
-                var data = response.Data.Value;
                 return response.ToEntity();
-            }
         }
 
         public static async Task ModifyInteractionResponse (BaseDiscordClient discord, IDiscordInteraction interaction, string text,
@@ -219,7 +231,7 @@ namespace Discord.Rest
 
 
         #region Followup
-        public static async Task<ulong> SendInteractionFollowup (BaseDiscordClient discord, IDiscordInteraction interaction, string text,
+        public static async Task<RestMessage> SendInteractionFollowup (BaseDiscordClient discord, IDiscordInteraction interaction, string text,
             bool isTTS, IEnumerable<Embed> embeds, string username, string avatarUrl, AllowedMentions allowedMentions, RequestOptions options)
         {
             Preconditions.AtMost(embeds?.Count() ?? 0, 10, nameof(embeds), "A max of 10 embeds are allowed.");
@@ -241,7 +253,8 @@ namespace Discord.Rest
             };
 
             var message = await discord.ApiClient.CreateFollowupMessage(appId, token, args, options).ConfigureAwait(false);
-            return message.Id;
+            var user = RestUser.Create(discord, message.Author.GetValueOrDefault(null));
+            return RestMessage.Create(discord, interaction.Channel, user, message);
         }
 
         public static async Task ModifyFollowupMessage (BaseDiscordClient discord, IDiscordInteraction interaction, ulong messageId,

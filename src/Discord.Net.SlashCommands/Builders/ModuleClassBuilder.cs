@@ -9,6 +9,7 @@ namespace Discord.SlashCommands.Builders
     internal static class ModuleClassBuilder
     {
         private static readonly TypeInfo ModuleTypeInfo = typeof(ISlashModuleBase).GetTypeInfo();
+        private static readonly TypeInfo TypeReaderTypeInfo = typeof(ITypeReader).GetTypeInfo();
 
         public static async Task<IEnumerable<TypeInfo>> SearchAsync (Assembly assembly, SlashCommandService commandService)
         {
@@ -235,6 +236,7 @@ namespace Discord.SlashCommands.Builders
             builder.IsRequired = !paramInfo.IsOptional;
             builder.DefaultValue = paramInfo.DefaultValue;
             builder.ParameterType = paramType;
+            builder.TypeReader = GetTypeReader(paramType, commandService);
 
             foreach (var attribute in attributes)
             {
@@ -264,6 +266,17 @@ namespace Discord.SlashCommands.Builders
                         break;
                 }
             }
+        }
+
+        private static Func<ISlashCommandContext, InteractionParameter, IServiceProvider, object> GetTypeReader ( Type type, SlashCommandService commandService )
+        {
+            var discordType = SlashCommandUtility.GetDiscordOptionType(type);
+
+            var reader = commandService.TypeReaders[discordType];
+
+            if (reader == null)
+                throw new InvalidOperationException($"There is no registered {nameof(ITypeReader)} for type {nameof(type)}");
+            return reader;
         }
 
         private static bool IsValidModuleDefinition (TypeInfo typeInfo)
