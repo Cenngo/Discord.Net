@@ -62,23 +62,28 @@ The .NET Core workload must be selected during Visual Studio installation.
 
 - [.NET Core SDK](https://www.microsoft.com/net/download/core)
 
-## Known Issues
+## Known compatibility issues
 
 ### WebSockets (Win7 and earlier)
 
 .NET Core 1.1 does not support WebSockets on Win7 and earlier. This issue has been fixed since the release of .NET Core 2.1. It is recommended to target .NET Core 2.1 or above for your project if you wish to run your bot on legacy platforms; alternatively, you may choose to install the [Discord.Net.Providers.WS4Net](https://www.nuget.org/packages/Discord.Net.Providers.WS4Net/) package.
 
-## Versioning Guarantees
+## How to use
 
-This library generally abides by [Semantic Versioning](https://semver.org). Packages are published in MAJOR.MINOR.PATCH version format.
+Setting up labs in your project is really simple, here's how to do it:
+1) Remove Discord.Net from your project
+2) Add Discord.Net Labs nuget to your project
+3) That's all!
 
-An increment of the PATCH component always indicates that an internal-only change was made, generally a bugfix. These changes will not affect the public-facing API in any way, and are always guaranteed to be forward- and backwards-compatible with your codebase, any pre-compiled dependencies of your codebase.
+> Additional installation info can be found [here](https://labs.discordnet.dev/guides/getting_started/labs.html).
 
-An increment of the MINOR component indicates that some addition was made to the library, and this addition is not backwards-compatible with prior versions. However, Discord.Net **does not guarantee forward-compatibility** on minor additions. In other words, we permit a limited set of breaking changes on a minor version bump.
+## Branches
 
-Due to the nature of the Discord API, we will oftentimes need to add a property to an entity to support the latest API changes. Discord.Net provides interfaces as a method of consuming entities; and as such, introducing a new field to an entity is technically a breaking change. Major version bumps generally indicate some major change to the library, and as such we are hesitant to bump the major version for every minor addition to the library. To compromise, we have decided that interfaces should be treated as **consumable only**, and your applications should typically not be implementing interfaces. (For applications where interfaces are implemented, such as in test mocks, we apologize for this inconsistency with SemVer).
+### Dev
+This branch is kept up to date with dnets dev branch. we pull of it to ensure that labs will work with pre existing dnet code.
 
-Furthermore, while we will never break the API (outside of interface changes) on minor builds, we will occasionally need to break the ABI, by introducing parameters to a method to match changes upstream with Discord. As such, a minor version increment may require you to recompile your code, and dependencies, such as addons, may also need to be recompiled and republished on the newer version. When a binary breaking change is made, the change will be noted in the release notes.
+### release/3.x
+This branch is what will be pushed to nuget, sometimes its not up to date as we wait for other features to be finished.
 
 An increment of the MAJOR component indicates that breaking changes have been made to the library; consumers should check the release notes to determine what changes need to be made.
 
