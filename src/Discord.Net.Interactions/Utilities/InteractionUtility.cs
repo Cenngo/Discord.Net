@@ -109,5 +109,33 @@ namespace Discord.Interactions
             else
                 return false;
         }
+
+        public static async Task<TModal> SendModalAsync<TModal>(this IInteractionContext context, TimeSpan timeout, IServiceProvider services = null,
+            CancellationToken cancellationToken = default)
+            where TModal : class, IModal
+        {
+            if (context.Client is not BaseSocketClient socketClient)
+                throw new ArgumentException("Context doesn't belong to a Socket Interaction.", nameof(context));
+
+            var guid = Guid.NewGuid();
+            var customId = guid.ToString();
+            _ = context.Interaction.RespondWithModalAsync<TModal>(customId);
+
+            var response = await WaitForInteractionAsync(socketClient, timeout,
+                interaction => interaction is SocketModal modal && modal.Data.CustomId == customId,
+                cancellationToken) as SocketModal;
+
+            if (response is null)
+                return null;
+
+            ModalUtils.TryGet<TModal>(out var modal);
+            var ctx = new InteractionContext(socketClient, response, response.Channel);
+            var result = await modal.CreateModalAsync(ctx, services, true);
+
+            if (!result.IsSuccess || result is not ParseResult parseResult)
+                return null;
+
+            return parseResult.Value as TModal;
+        }
     }
 }
