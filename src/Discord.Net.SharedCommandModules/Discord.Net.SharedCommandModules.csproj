@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Discord.Net.Commands\Discord.Net.Commands.csproj" />
-    <ProjectReference Include="..\src\Discord.Net.Interactions\Discord.Net.Interactions.csproj" />
+    <ProjectReference Include="..\Discord.Net.Commands\Discord.Net.Commands.csproj" />
+    <ProjectReference Include="..\Discord.Net.Interactions\Discord.Net.Interactions.csproj" />
   </ItemGroup>
 
 </Project>
