@@ -154,6 +154,14 @@ namespace Discord.Commands
             {
                 switch (attribute)
                 {
+                    case CompCommandAttribute compCommand:
+                        builder.AddAliases(compCommand.Alliases);
+                        builder.RunMode = compCommand.RunMode;
+                        builder.Name ??= compCommand.Text;
+                        builder.Summary = compCommand.Summary;
+                        builder.Remarks = compCommand.Remarks;
+                        builder.IgnoreExtraArgs = compCommand.IgnoreExtraArgs ?? service._ignoreExtraArgs;
+                        break;
                     case CommandAttribute command:
                         builder.AddAliases(command.Text);
                         builder.RunMode = command.RunMode;
