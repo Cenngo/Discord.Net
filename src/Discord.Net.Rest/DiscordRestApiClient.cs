@@ -1213,9 +1213,12 @@ namespace Discord.API
         #endregion
 
         #region Interactions
-        public async Task<ApplicationCommand[]> GetGlobalApplicationCommandsAsync(bool withLocalizations = false, RequestOptions options = null)
+        public async Task<ApplicationCommand[]> GetGlobalApplicationCommandsAsync(bool withLocalizations = false, string locale = null, RequestOptions options = null)
         {
             options = RequestOptions.CreateOrClone(options);
+
+            if (locale is not null)
+                options.RequestHeaders["X-Discord-Locale"] = new[] { locale };
 
             //with_localizations=false doesnt return localized names and descriptions
             return await SendAsync<ApplicationCommand[]>("GET", () => $"applications/{CurrentApplicationId}/commands{(withLocalizations ? "?with_localizations=true" : string.Empty)}",
@@ -1284,9 +1287,12 @@ namespace Discord.API
             return await SendJsonAsync<ApplicationCommand[]>("PUT", () => $"applications/{CurrentApplicationId}/commands", commands, new BucketIds(), options: options).ConfigureAwait(false);
         }
 
-        public async Task<ApplicationCommand[]> GetGuildApplicationCommandsAsync(ulong guildId, bool withLocalizations = false, RequestOptions options = null)
+        public async Task<ApplicationCommand[]> GetGuildApplicationCommandsAsync(ulong guildId, bool withLocalizations = false, string locale = null, RequestOptions options = null)
         {
             options = RequestOptions.CreateOrClone(options);
+
+            if (locale is not null)
+                options.RequestHeaders["X-Discord-Locale"] = new[] { locale };
 
             var bucket = new BucketIds(guildId: guildId);
 

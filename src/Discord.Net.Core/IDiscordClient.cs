@@ -161,7 +161,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of global
         ///     application commands.
         /// </returns>
-        Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(bool withLocalizations = false, RequestOptions options = null);
+        Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(bool withLocalizations = false, string locale = null, RequestOptions options = null);
 
         /// <summary>
         ///     Creates a global application command.
