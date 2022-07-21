@@ -250,10 +250,15 @@ namespace Discord.Interactions
                 Description = commandOption.Description,
                 Type = commandOption.Type,
                 IsRequired = commandOption.IsRequired,
+                MaxValue = commandOption.MaxValue,
+                MinValue = commandOption.MinValue,
+                IsAutocomplete = commandOption.IsAutocomplete.GetValueOrDefault(),
+                ChannelTypes = commandOption.ChannelTypes?.ToList(),
                 Choices = commandOption.Choices?.Select(x => new ApplicationCommandOptionChoiceProperties
                 {
                     Name = x.Name,
-                    Value = x.Value
+                    Value = x.Value,
+                    NameLocalizations = x.NameLocalizations?.ToDictionary()
                 }).ToList(),
                 Options = commandOption.Options?.Select(x => x.ToApplicationCommandOptionProps()).ToList(),
                 NameLocalizations = commandOption.NameLocalizations?.ToImmutableDictionary(),
