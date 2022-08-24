@@ -857,7 +857,7 @@ namespace Discord.Interactions
             {
                 await _cmdLogger.DebugAsync($"Unknown custom interaction id, skipping execution ({input.ToUpper()})");
 
-                await _componentCommandExecutedEvent.InvokeAsync(null, context, result).ConfigureAwait(false);
+                await _modalCommandExecutedEvent.InvokeAsync(null, context, result).ConfigureAwait(false);
                 return result;
             }
 
