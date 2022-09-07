@@ -555,8 +555,8 @@ namespace Discord
                 ChannelTypes = ChannelTypes,
                 MinValue = MinValue,
                 MaxValue = MaxValue,
-                NameLocalizations = _nameLocalizations ?? ImmutableDictionary<string, string>.Empty as IReadOnlyDictionary<string, string>,
-                DescriptionLocalizations = _descriptionLocalizations ?? ImmutableDictionary<string, string>.Empty as IReadOnlyDictionary<string, string>,
+                NameLocalizations = _nameLocalizations ?? ImmutableDictionary<string, string>.Empty as IDictionary<string, string>,
+                DescriptionLocalizations = _descriptionLocalizations ?? ImmutableDictionary<string, string>.Empty as IDictionary<string, string>,
                 MinLength = MinLength,
                 MaxLength = MaxLength,
             };
