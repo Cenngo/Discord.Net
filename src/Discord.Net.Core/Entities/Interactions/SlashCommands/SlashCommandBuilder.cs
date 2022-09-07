@@ -107,8 +107,8 @@ namespace Discord
                 Name = Name,
                 Description = Description,
                 IsDefaultPermission = IsDefaultPermission,
-                NameLocalizations = _nameLocalizations,
-                DescriptionLocalizations = _descriptionLocalizations,
+                NameLocalizations = _nameLocalizations ?? ImmutableDictionary<string, string>.Empty as IReadOnlyDictionary<string, string>,
+                DescriptionLocalizations = _descriptionLocalizations ?? ImmutableDictionary<string, string>.Empty as IReadOnlyDictionary<string, string>,
                 IsDMEnabled = IsDMEnabled,
                 DefaultMemberPermissions = DefaultMemberPermissions ?? Optional<GuildPermission>.Unspecified
             };
@@ -555,8 +555,8 @@ namespace Discord
                 ChannelTypes = ChannelTypes,
                 MinValue = MinValue,
                 MaxValue = MaxValue,
-                NameLocalizations = _nameLocalizations,
-                DescriptionLocalizations = _descriptionLocalizations,
+                NameLocalizations = _nameLocalizations ?? ImmutableDictionary<string, string>.Empty as IReadOnlyDictionary<string, string>,
+                DescriptionLocalizations = _descriptionLocalizations ?? ImmutableDictionary<string, string>.Empty as IReadOnlyDictionary<string, string>,
                 MinLength = MinLength,
                 MaxLength = MaxLength,
             };
@@ -910,7 +910,7 @@ namespace Discord
             if (descriptionLocalizations is null)
                 throw new ArgumentNullException(nameof(descriptionLocalizations));
 
-            foreach (var (locale, description) in _descriptionLocalizations)
+            foreach (var (locale, description) in descriptionLocalizations)
             {
                 if(!Regex.IsMatch(locale, @"^\w{2}(?:-\w{2})?$"))
                     throw new ArgumentException($"Invalid locale: {locale}", nameof(locale));
